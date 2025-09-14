@@ -16,13 +16,13 @@ public class Event extends UserEvent {
     SchemaVersion schemaVersion;
 
     public void UserEvent(UserEvent userEvent) {
-        this.setEvent(userEvent.getEvent());
+        this.setEventType(userEvent.getEventType());
         this.setUserId(userEvent.getUserId());
         this.setAnonymousId(userEvent.getAnonymousId());
         this.setAppId(userEvent.getAppId());
         this.setTimestamp(userEvent.getTimestamp());
         this.setMetadata(userEvent.getMetadata());
         this.setSessionId(userEvent.getSessionId());
-
+        this.setSource(userEvent.getSource());
     }
 }

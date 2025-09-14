@@ -14,7 +14,7 @@ public class UserEvent {
     private UUID sessionId;
     private UUID userId;
     private Timestamp timestamp;
-    private String event;
+    private String eventType;
     private String source;
 
     private Map<String, Object> metadata;

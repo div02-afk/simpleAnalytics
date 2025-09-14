@@ -1,38 +1,34 @@
 package com.simpleAnalytics.Gateway.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simpleAnalytics.Gateway.entity.Context;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.Ordered;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import jakarta.servlet.ServletException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.filter.OncePerRequestFilter;
 import ua_parser.Client;
 import ua_parser.Parser;
+import java.io.IOException;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@Slf4j
 @Component
-public class ContextEnrichmentFilter implements GlobalFilter, Ordered {
+@Order(1)
+public class ContextEnrichmentFilter extends OncePerRequestFilter {
 
     private final Parser uaParser = new Parser();
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
-
+    protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws ServletException, IOException {
         // 1. Extract IP
-        String ip = request.getHeaders().getFirst("X-Forwarded-For");
-        if (ip == null && request.getRemoteAddress() != null) {
-            ip = request.getRemoteAddress().getAddress().getHostAddress();
-        }
-        String locale = request.getHeaders().getFirst("Accept-Language");
+        String ip = String.valueOf(request.getHeaders("X-Forwarded-For"));
+
+//        if (ip == null && request.getRemoteAddress() != null) {
+//            ip = request.getRemoteAddress().getAddress().getHostAddress();
+//        }
+        String locale = String.valueOf(request.getHeaders("Accept-Language"));
 
         // 2. Extract User-Agent
-        String ua = request.getHeaders().getFirst("User-Agent");
+        String ua = String.valueOf(request.getHeaders("User-Agent"));
         Client client = ua != null ? uaParser.parse(ua) : null;
 
         String os = client != null ? client.os.family : "unknown";
@@ -41,14 +37,9 @@ public class ContextEnrichmentFilter implements GlobalFilter, Ordered {
         // 3. Enrich context and add to exchange attributes
         Context ctx = Context.builder()
                 .ip(ip).browser(browser).device(device).os(os).locale(locale).build();
+        log.info("Added context: {}", ctx.toString());
+        request.setAttribute("context", ctx);
 
-        exchange.getAttributes().put("contextData", ctx);
-
-        return chain.filter(exchange);
-    }
-
-    @Override
-    public int getOrder() {
-        return -1; // Run early
+        filterChain.doFilter(request, response);
     }
 }

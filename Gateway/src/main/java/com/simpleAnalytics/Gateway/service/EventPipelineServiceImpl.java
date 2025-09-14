@@ -17,18 +17,19 @@ import java.util.UUID;
 public class EventPipelineServiceImpl implements EventPipelineService {
 
     EventProducer eventProducer;
-
+    private final SchemaVersion CURRENT_SCHEMA_VERSION = SchemaVersion.V1_0_0;
     @Autowired
     public EventPipelineServiceImpl(EventProducer eventProducer) {
         this.eventProducer = eventProducer;
     }
 
     public void processEvent(UserEvent newUserEvent, Context context) {
+
         Event event = Event.builder()
                 .Id(UUID.randomUUID())
                 .receivedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .context(context)
-                .schemaVersion(SchemaVersion.V1_0_0)
+                .schemaVersion(CURRENT_SCHEMA_VERSION)
                 .build();
         event.UserEvent(newUserEvent);
 

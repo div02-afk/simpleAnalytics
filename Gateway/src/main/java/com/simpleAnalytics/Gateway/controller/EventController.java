@@ -23,18 +23,11 @@ public class EventController {
         this.eventPipelineService = eventPipelineService;
     }
 
-    @GetMapping
-    public ResponseEntity<String> hello() {
-        return ResponseEntity.status(HttpStatus.OK).body("Hello World");
-
-    }
 
     @PostMapping
-    public ResponseEntity postEvent(@RequestBody UserEvent event, ServerWebExchange exchange) {
-        Context context = exchange.getAttribute("contextData");
-
+    public ResponseEntity<String> postEvent(@RequestBody UserEvent event, ServerWebExchange exchange) {
+        Context context = exchange.getAttribute("context");
         eventPipelineService.processEvent(event, context);
-
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
