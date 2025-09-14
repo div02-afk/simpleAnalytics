@@ -1,7 +1,7 @@
 package com.simpleAnalytics.Gateway.service;
 
 
-import com.simpleAnalytics.Gateway.MQ.EventProducer;
+import com.simpleAnalytics.Gateway.MQ.EventProducerImpl;
 import com.simpleAnalytics.Gateway.entity.Context;
 import com.simpleAnalytics.Gateway.entity.Event;
 import com.simpleAnalytics.Gateway.entity.SchemaVersion;
@@ -16,11 +16,11 @@ import java.util.UUID;
 @Service
 public class EventPipelineServiceImpl implements EventPipelineService {
 
-    EventProducer eventProducer;
+    EventProducerImpl eventProducerImpl;
     private final SchemaVersion CURRENT_SCHEMA_VERSION = SchemaVersion.V1_0_0;
     @Autowired
-    public EventPipelineServiceImpl(EventProducer eventProducer) {
-        this.eventProducer = eventProducer;
+    public EventPipelineServiceImpl(EventProducerImpl eventProducerImpl) {
+        this.eventProducerImpl = eventProducerImpl;
     }
 
     public void processEvent(UserEvent newUserEvent, Context context) {
@@ -34,6 +34,6 @@ public class EventPipelineServiceImpl implements EventPipelineService {
         event.UserEvent(newUserEvent);
 
         //send to kafka
-        eventProducer.sendEvent("event", event);
+        eventProducerImpl.sendEvent("event", event);
     }
 }
