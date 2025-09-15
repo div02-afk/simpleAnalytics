@@ -2,6 +2,6 @@
 <project version="4">
   <component name="DataSourcePerFileMappings">
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/afbd1fd4-2f4e-4a7d-9c4e-41b2ced0d65a/console.sql" value="afbd1fd4-2f4e-4a7d-9c4e-41b2ced0d65a" />
-    <file url="file://$PROJECT_DIR$/EventConsumer/src/main/java/com/simpleAnalytics/EventConsumer/repository/EventRepository.java" value="afbd1fd4-2f4e-4a7d-9c4e-41b2ced0d65a" />
+    <file url="file://$PROJECT_DIR$/EventConsumer/src/main/java/com/simpleAnalytics/EventConsumer/repository/EventRepositoryImpl.java" value="afbd1fd4-2f4e-4a7d-9c4e-41b2ced0d65a" />
   </component>
 </project>

@@ -7,16 +7,20 @@ import java.sql.Timestamp;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 @Data
+@RequiredArgsConstructor
 public class UserEvent {
-    private UUID appId;
-    private UUID anonymousId;
-    private UUID sessionId;
-    private UUID userId;
-    private Timestamp timestamp;
-    private String eventType;
-    private String source;
-    private Map<String, Object> metadata;
+    private final UUID appId;
+    private final UUID anonymousId;
+    private final UUID sessionId;
+    private final UUID userId;
+    private final Timestamp timestamp;
+    private final String eventType;
+    private final String source;
+    private final Map<String, Object> metadata;
 }
 
 

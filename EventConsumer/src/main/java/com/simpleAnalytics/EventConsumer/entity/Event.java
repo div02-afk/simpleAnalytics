@@ -2,6 +2,7 @@ package com.simpleAnalytics.EventConsumer.entity;
 
 
 import lombok.*;
+import org.springframework.lang.Nullable;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -10,11 +11,13 @@ import java.util.UUID;
 @Builder
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class Event {
-    private final UUID Id;
-    private final Timestamp receivedAt;
+    private UUID Id;
+    private Timestamp receivedAt;
+    @Nullable
     private Context context;
-    private final SchemaVersion schemaVersion;
-    private final UserEvent userEvent;
+    private SchemaVersion schemaVersion;
+    private UserEvent userEvent;
 
 }

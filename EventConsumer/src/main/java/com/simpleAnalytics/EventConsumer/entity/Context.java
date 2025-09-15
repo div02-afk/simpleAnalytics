@@ -9,13 +9,12 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Context {
-    private String ip;
-    private String userAgent;
-    private String os;
-    private String browser;
-    private String device;
-    private String locale;
-    private String timezone;
+    private final String ip;
+    private final String userAgent;
+    private final String os;
+    private final String browser;
+    private final String device;
+    private final String locale;
+    private final String timezone;
 }

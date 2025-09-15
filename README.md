@@ -1,2 +1,3 @@
 # simpleAnalytics
 
+![architecture](/arch.svg)

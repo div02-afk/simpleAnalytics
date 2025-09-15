@@ -1,32 +1,41 @@
 package com.simpleAnalytics.EventConsumer.MQ.impl;
 
-import com.simpleAnalytics.EventConsumer.MQ.DLQEventProducer;
-import com.simpleAnalytics.EventConsumer.MQ.DQLEventConsumer;
-import com.simpleAnalytics.EventConsumer.entity.DLQEvent;
 import com.simpleAnalytics.EventConsumer.repository.EventRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import com.simpleAnalytics.EventConsumer.MQ.DLQEventConsumer;
+import com.simpleAnalytics.EventConsumer.MQ.DLQEventProducer;
+import com.simpleAnalytics.EventConsumer.entity.DLQEvent;
+import com.simpleAnalytics.EventConsumer.repository.EventRepositoryImpl;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 
 @Service
 @Slf4j
-public class DLQEventConsumerImpl implements DQLEventConsumer {
-    EventRepository eventRepository;
-    DLQEventProducer dlqEventProducer;
+@RequiredArgsConstructor
+public class DLQEventConsumerImpl implements DLQEventConsumer {
+    private final EventRepository eventRepository;
+    private final DLQEventProducer dlqEventProducer;
 
+
+    @Override
     @KafkaListener(topics = "event_dlq", groupId = "dlq_consumer")
-    public void consume(DLQEvent dlqEvent) {
-        log.info("Processing DLQ Event: {}", dlqEvent.getEvent().getId());
-        log.info("Error for DLQ Event: {}", dlqEvent.getError().getMessage());
+    public void consume(List<DLQEvent> dlqEvents) {
+        log.info("Processing DLQ Event: {}", dlqEvents.size());
+        log.info("Error for DLQ Event: {}", dlqEvents.getFirst().getError().getMessage());
 
         try {
-            log.info("Saving DLQ Event: {}", dlqEvent.getEvent().getId());
-            eventRepository.saveEvent(dlqEvent.getEvent());
-            log.info("Saved DLQ Event: {}", dlqEvent.getEvent().getId());
+            log.info("Saving DLQ Events");
+            eventRepository.saveAll(dlqEvents.stream().map(DLQEvent::getEvent).toList());
+            log.info("Saved DLQ Events: {}", dlqEvents.size());
         } catch (Exception e) {
-            log.error("Error while saving DLQ Event: {}", dlqEvent.getError().getMessage());
-            dlqEventProducer.sendEvent(dlqEvent);
+            log.error("Error while saving DLQ Events: {}", dlqEvents.stream().map(dlqEvent -> dlqEvent.getEvent().getId()).toList());
+//            dlqEventProducer.sendEvent(dlqEvent);
         }
 
     }

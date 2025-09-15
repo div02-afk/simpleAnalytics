@@ -12,7 +12,7 @@
         </processorPath>
         <module name="Gateway" />
       </profile>
-      <profile name="Annotation profile for TenetService" enabled="true">
+      <profile name="Annotation profile for EventConsumer" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

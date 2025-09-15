@@ -4,7 +4,6 @@ import com.simpleAnalytics.EventConsumer.entity.DLQEvent;
 
 import java.util.List;
 
-public interface DLQEventProducer {
-
-    public void sendEvents(List<DLQEvent> dlqEvent) ;
+public interface DLQEventConsumer {
+    public void consume(List<DLQEvent> event);
 }

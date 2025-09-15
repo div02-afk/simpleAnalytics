@@ -17,5 +17,4 @@ public class Event{
     Context context;
     SchemaVersion schemaVersion;
     UserEvent userEvent;
-
 }

@@ -6,6 +6,9 @@ import com.simpleAnalytics.Gateway.entity.Context;
 import com.simpleAnalytics.Gateway.entity.Event;
 import com.simpleAnalytics.Gateway.entity.SchemaVersion;
 import com.simpleAnalytics.Gateway.entity.UserEvent;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -15,14 +18,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class EventPipelineServiceImpl implements EventPipelineService {
 
-    EventProducerImpl eventProducerImpl;
+    private final EventProducerImpl eventProducerImpl;
     private final SchemaVersion CURRENT_SCHEMA_VERSION = SchemaVersion.V1_0_0;
-    @Autowired
-    public EventPipelineServiceImpl(EventProducerImpl eventProducerImpl) {
-        this.eventProducerImpl = eventProducerImpl;
-    }
+    
 
     public void processEvent(UserEvent newUserEvent, Context context) throws RuntimeException {
         validateUserEvent(newUserEvent);
