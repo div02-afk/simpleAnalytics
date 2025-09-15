@@ -12,7 +12,7 @@
         </processorPath>
         <module name="Gateway" />
       </profile>
-      <profile name="Annotation profile for EventConsumer" enabled="true">
+      <profile name="Annotation profile for TenetService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -20,6 +20,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="EventConsumer" />
+        <module name="TenetService" />
       </profile>
     </annotationProcessing>
   </component>
@@ -27,6 +28,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="EventConsumer" options="-parameters" />
       <module name="Gateway" options="-parameters" />
+      <module name="TenetService" options="-parameters" />
     </option>
   </component>
 </project>
