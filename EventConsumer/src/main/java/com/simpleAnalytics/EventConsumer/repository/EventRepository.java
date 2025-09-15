@@ -7,21 +7,29 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.simpleAnalytics.EventConsumer.entity.Context;
 import com.simpleAnalytics.EventConsumer.entity.Event;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper mapper = new JsonMapper();
 
-    public void saveEvent(Event event) throws JsonProcessingException {
+    public void saveEvent(Event event) {
         if (event.getContext() == null) {
             event.setContext(new Context());
         }
 
-        String metadataJson = mapper.writeValueAsString(event.getMetadata());
+        String metadataJson;
+        try {
+            metadataJson = mapper.writeValueAsString(event.getUserEvent().getMetadata());
+        } catch (JsonProcessingException e) {
+            log.warn("Error parsing metadata as JsonString: {}", e.getMessage());
+            metadataJson = "";
+        }
         String sql = """
                 INSERT INTO event (
                                    id, receivedAt,
@@ -45,14 +53,14 @@ public class EventRepository {
                 event.getContext().getLocale(),
                 event.getContext().getTimezone(),
                 event.getSchemaVersion().name(),
-                event.getSessionId(),
-                event.getUserId(),
-                event.getAnonymousId(),
-                event.getAppId(),
-                event.getTimestamp(),
-                event.getEventType(),
+                event.getUserEvent().getSessionId(),
+                event.getUserEvent().getUserId(),
+                event.getUserEvent().getAnonymousId(),
+                event.getUserEvent().getAppId(),
+                event.getUserEvent().getTimestamp(),
+                event.getUserEvent().getEventType(),
                 metadataJson,
-                event.getSource()
+                event.getUserEvent().getSource()
         );
     }
 }

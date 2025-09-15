@@ -1,6 +1,9 @@
-package com.simpleAnalytics.EventConsumer.MQ;
+package com.simpleAnalytics.EventConsumer.MQ.impl;
 
 
+import com.simpleAnalytics.EventConsumer.MQ.DLQEventProducer;
+import com.simpleAnalytics.EventConsumer.MQ.EventConsumer;
+import com.simpleAnalytics.EventConsumer.entity.DLQEvent;
 import com.simpleAnalytics.EventConsumer.entity.Event;
 import com.simpleAnalytics.EventConsumer.repository.EventRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +15,12 @@ import org.springframework.stereotype.Service;
 public class EventConsumerImpl implements EventConsumer {
 
     EventRepository eventRepository;
+    DLQEventProducer dlqEventProducer;
+
     EventConsumerImpl(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
     }
+
     @KafkaListener(topics = "event", groupId = "analytics-consumer")
     public void consume(Event event) {
         try {
@@ -24,7 +30,8 @@ public class EventConsumerImpl implements EventConsumer {
             //save to db
         } catch (Exception e) {
             log.error("Error processing event", e);
-            //push to dlq
+            DLQEvent dlqEvent = DLQEvent.builder().error(new Error(e)).event(event).build();
+            dlqEventProducer.sendEvent(dlqEvent);
         }
     }
 }

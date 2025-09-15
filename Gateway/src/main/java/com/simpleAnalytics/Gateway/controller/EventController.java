@@ -27,7 +27,11 @@ public class EventController {
     @PostMapping
     public ResponseEntity<String> postEvent(@RequestBody UserEvent event, ServerWebExchange exchange) {
         Context context = exchange.getAttribute("context");
-        eventPipelineService.processEvent(event, context);
+        try{
+            eventPipelineService.processEvent(event, context);
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing event, " + e.getMessage());
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

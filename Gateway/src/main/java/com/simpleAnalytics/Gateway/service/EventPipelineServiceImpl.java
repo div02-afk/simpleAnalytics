@@ -8,6 +8,7 @@ import com.simpleAnalytics.Gateway.entity.SchemaVersion;
 import com.simpleAnalytics.Gateway.entity.UserEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -23,17 +24,33 @@ public class EventPipelineServiceImpl implements EventPipelineService {
         this.eventProducerImpl = eventProducerImpl;
     }
 
-    public void processEvent(UserEvent newUserEvent, Context context) {
+    public void processEvent(UserEvent newUserEvent, Context context) throws RuntimeException {
+        validateUserEvent(newUserEvent);
 
         Event event = Event.builder()
                 .Id(UUID.randomUUID())
                 .receivedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .context(context)
                 .schemaVersion(CURRENT_SCHEMA_VERSION)
+                .userEvent(newUserEvent)
                 .build();
-        event.UserEvent(newUserEvent);
+
 
         //send to kafka
         eventProducerImpl.sendEvent("event", event);
+    }
+
+    private static void validateUserEvent(UserEvent newUserEvent) {
+        if(newUserEvent.getAnonymousId() == null){
+            throw new RuntimeException("Anonymous Id required");
+        } else if (newUserEvent.getEventType() == null) {
+            throw new RuntimeException("Event type required");
+        } else if (newUserEvent.getAppId() == null) {
+            throw new RuntimeException("Application Id required");
+        } else if (newUserEvent.getSource() == null) {
+            throw new RuntimeException("Source required");
+        } else if (newUserEvent.getTimestamp() == null) {
+            throw new RuntimeException("Timestamp required");
+        }
     }
 }

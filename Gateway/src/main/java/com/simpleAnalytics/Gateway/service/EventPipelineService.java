@@ -5,5 +5,5 @@ import com.simpleAnalytics.Gateway.entity.UserEvent;
 
 public interface EventPipelineService {
 
-    void processEvent(UserEvent event, Context context);
+    void processEvent(UserEvent event, Context context) throws Exception;
 }

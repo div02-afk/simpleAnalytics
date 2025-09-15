@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Context {
-    String ip;
-    String userAgent;
-    String os;
-    String browser;
-    String device;
-    String locale;
-    String timezone;
+    private String ip;
+    private String userAgent;
+    private String os;
+    private String browser;
+    private String device;
+    private String locale;
+    private String timezone;
 }
