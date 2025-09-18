@@ -1,0 +1,19 @@
+spring:
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer
+      bootstrap-servers: localhost:9092
+    consumer:
+      group-id: 'credit-consumer'
+      bootstrap-servers: localhost:9092
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer
+      properties:
+        specific:
+          protobuf:
+            value:com.simpleAnalytics.protobuf.EventProto.EventCreditConsumptionInfo
+    properties:
+      schema.registry.url: http://localhost:8081
+    bootstrap-servers: localhost:9092

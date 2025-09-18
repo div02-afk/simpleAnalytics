@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package com.simpleAnalytics.protobuf;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+option java_package = "com.simpleAnalytics.protobuf";
+option java_outer_classname = "EventProto";
+
+message UserEvent {
+  string app_id = 1;                // UUID as string
+  string anonymous_id = 2;          // UUID as string
+  string session_id = 3;            // UUID as string
+  string user_id = 4;               // UUID as string
+  google.protobuf.Timestamp timestamp = 5; // Event timestamp
+  string event_type = 6;            // Event type
+  string source = 7;                // Source
+  google.protobuf.Struct metadata = 8; // Arbitrary metadata
+}
+enum SchemaVersion {
+  VERSION_UNSPECIFIED = 0;
+  V1_0_0 = 1;
+}
+
+message Context {
+  string ip = 1;
+  string user_agent = 2;
+  string os = 3;
+  string browser = 4;
+  string device = 5;
+  string locale = 6;
+  string timezone = 7;
+}
+
+
+message Event {
+  string id = 1;                       // UUID stored as string
+  google.protobuf.Timestamp received_at = 2;
+  Context context = 3;                  // another message you'll define
+  SchemaVersion schema_version = 4;     // enum or message
+  UserEvent user_event = 5;             // reuse existing proto
+}
+
+
+message DLQEvents {
+  Event event = 1;
+  string errorMessage = 2;
+}
