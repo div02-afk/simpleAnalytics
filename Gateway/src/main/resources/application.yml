@@ -3,13 +3,16 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer
+
     consumer:
-      group-id: 'credit-consumer'
+      group-id: 'gateway-consumer'
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer
       properties:
-        specific.protobuf.value.type: com.simpleAnalytics.protobuf.EventProto$EventCreditConsumptionInfo
+        specific:
+          protobuf:
+            value:com.simpleAnalytics.protobuf.EventProto.Event
     properties:
       schema.registry.url: http://localhost:8081
     bootstrap-servers: localhost:29092

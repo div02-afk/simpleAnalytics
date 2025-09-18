@@ -1,6 +1,7 @@
 package com.simpleAnalytics.EventConsumer.entity;
 
 
+import com.simpleAnalytics.protobuf.EventProto;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
@@ -16,8 +17,8 @@ public class Event {
     private UUID Id;
     private Timestamp receivedAt;
     @Nullable
-    private Context context;
-    private SchemaVersion schemaVersion;
+    private EventProto.Context context;
+    private EventProto.SchemaVersion schemaVersion;
     private UserEvent userEvent;
 
 }

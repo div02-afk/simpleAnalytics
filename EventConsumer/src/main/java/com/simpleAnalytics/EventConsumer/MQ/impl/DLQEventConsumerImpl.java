@@ -27,7 +27,8 @@ public class DLQEventConsumerImpl implements DLQEventConsumer {
     @KafkaListener(topics = "event_dlq", groupId = "dlq_consumer")
     public void consume(List<DLQEvent> dlqEvents) {
         log.info("Processing DLQ Event: {}", dlqEvents.size());
-        log.info("Error for DLQ Event: {}", dlqEvents.getFirst().getError().getMessage());
+        if(dlqEvents.isEmpty()) {return;}
+        log.info("Error for DLQ Event: {}", dlqEvents.get(0).getErrorMessage());
 
         try {
             log.info("Saving DLQ Events");

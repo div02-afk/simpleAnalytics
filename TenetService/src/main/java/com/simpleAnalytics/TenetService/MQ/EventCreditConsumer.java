@@ -1,9 +1,7 @@
 package com.simpleAnalytics.TenetService.MQ;
 
-import com.simpleAnalytics.TenetService.entity.EventCreditConsumptionInfo;
-
-import java.util.UUID;
+import com.simpleAnalytics.protobuf.EventProto;
 
 public interface EventCreditConsumer {
-    public void consume(EventCreditConsumptionInfo eventCreditConsumptionInfo);
+    public void consume(EventProto.EventCreditConsumptionInfo eventCreditConsumptionInfo);
 }

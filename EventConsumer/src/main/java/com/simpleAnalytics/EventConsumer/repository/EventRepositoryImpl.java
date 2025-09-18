@@ -56,7 +56,7 @@ public class EventRepositoryImpl implements EventRepository {
             } catch (Exception e) {
                 log.error("Failed to save batch of {} events after retries", eventBatch.size(), e);
                 Error error = new Error(e);
-                dlqEventProducer.sendEvents(eventBatch.stream().map((Event event) -> DLQEvent.builder().event(event).error(error).build()).toList());
+                dlqEventProducer.sendEvents(eventBatch.stream().map((Event event) -> DLQEvent.builder().event(event).errorMessage(error.getMessage()).build()).toList());
                 log.info("Sending DLQ Events: {}", eventBatch.size());
             }
         }

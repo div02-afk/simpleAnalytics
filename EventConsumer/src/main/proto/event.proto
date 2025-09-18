@@ -43,7 +43,7 @@ message Event {
 }
 
 
-message EventCreditConsumptionInfo {
-  string application_id = 1;
-  int32 credit_amount = 2;
+message DLQEvents {
+  Event event = 1;
+  string errorMessage = 2;
 }

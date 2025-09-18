@@ -1,6 +1,7 @@
-package com.simpleAnalytics.Gateway.MQ;
+package com.simpleAnalytics.Gateway.MQ.impl;
 
 
+import com.simpleAnalytics.Gateway.MQ.EventProducer;
 import com.simpleAnalytics.Gateway.entity.Event;
 import com.simpleAnalytics.Gateway.service.EventMapper;
 import lombok.RequiredArgsConstructor;
@@ -9,16 +10,16 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import com.simpleAnalytics.protobuf.EventProto;
 
+import java.util.concurrent.ExecutionException;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventProducerImpl implements  EventProducer {
-    private final KafkaTemplate<String, EventProto.Event> kafkaTemplate;
-    private final EventMapper eventMapper;
+public class EventProducerImpl implements EventProducer {
+    private final KafkaTemplate<String, EventProto.Event> eventKafkaTemplate;
     @Override
-    public void sendEvent(String topic, Event event) {
-        EventProto.Event.Builder builder = EventProto.Event.newBuilder();
-        kafkaTemplate.send(topic, EventMapper.toProto(event));
+    public void sendEvent(String topic, Event event) throws ExecutionException, InterruptedException {
+        eventKafkaTemplate.send(topic, EventMapper.toProto(event)).get();
         log.info("Event pushed to Kafka topic={} -> {}", topic, event);
     }
 }

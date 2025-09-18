@@ -1,0 +1,31 @@
+#spring.kafka.bootstrap-servers=localhost:9092
+#  # Producer configs
+#spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+#spring.kafka.producer.value-serializer=io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer
+#  # Consumer configs (for testing later)
+#spring.kafka.consumer.group-id=analytics-consumer
+#spring.kafka.consumer.auto-offset-reset=earliest
+#spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+#spring.kafka.consumer.value-deserializer=io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer
+#spring.kafka.consumer.properties.specific.protobuf.value.type=com.simpleAnalytics.protobuf.EventProto$Event
+#
+#spring.kafka.properties.schema.registry.url=http://localhost:8081
+
+
+spring:
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer
+    consumer:
+      group-id: 'analytics-consumer'
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer
+      properties:
+        specific.protobuf.value.type: com.simpleAnalytics.protobuf.EventProto$Event
+    properties:
+      schema.registry.url: http://localhost:8081
+    bootstrap-servers: localhost:29092
+
+

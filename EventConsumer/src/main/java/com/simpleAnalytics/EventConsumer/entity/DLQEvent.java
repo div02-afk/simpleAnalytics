@@ -8,5 +8,5 @@ import lombok.Data;
 @Builder
 public class DLQEvent {
     private final Event event;
-    private final Error error;
+    private final String errorMessage;
 }

@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/EventConsumer/EventConsumer.iml" filepath="$PROJECT_DIR$/EventConsumer/EventConsumer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Gateway/Gateway.iml" filepath="$PROJECT_DIR$/Gateway/Gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TenetService/TenetService.iml" filepath="$PROJECT_DIR$/TenetService/TenetService.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/simpleAnalytics.iml" filepath="$PROJECT_DIR$/.idea/simpleAnalytics.iml" />
     </modules>
   </component>
