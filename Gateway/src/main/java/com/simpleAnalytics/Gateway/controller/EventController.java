@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/event")
 public class EventController {
@@ -26,9 +28,10 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<String> postEvent(@RequestBody UserEvent event, ServerWebExchange exchange) {
+        UUID auth = UUID.randomUUID();
         Context context = exchange.getAttribute("context");
         try{
-            eventPipelineService.processEvent(event, context);
+            eventPipelineService.processEvent(event,auth, context);
         }catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing event, " + e.getMessage());
         }

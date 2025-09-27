@@ -4,6 +4,7 @@ package com.simpleAnalytics.Gateway.service;
 import com.simpleAnalytics.Gateway.MQ.CreditEventProducer;
 import com.simpleAnalytics.Gateway.MQ.EventProducer;
 import com.simpleAnalytics.Gateway.MQ.impl.EventProducerImpl;
+import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
 import com.simpleAnalytics.Gateway.entity.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,10 @@ public class EventPipelineServiceImpl implements EventPipelineService {
     private final EventProducer eventProducer;
     private final CreditEventProducer creditEventProducer;
     private final SchemaVersion CURRENT_SCHEMA_VERSION = SchemaVersion.V1_0_0;
+    private final APIKeyValidityCheck apiKeyValidityCheck;
 
     @Retryable(retryFor = RuntimeException.class)
-    public void processEvent(UserEvent newUserEvent, Context context) throws RuntimeException {
+    public void processEvent(UserEvent newUserEvent,UUID apiKey, Context context) throws RuntimeException {
         validateUserEvent(newUserEvent);
 
         Event event = Event.builder()
@@ -41,6 +43,8 @@ public class EventPipelineServiceImpl implements EventPipelineService {
                 .applicationId(event.getId())
                 .creditAmount(1)
                 .build();
+
+        apiKeyValidityCheck.isAPIKeyValid(apiKey);
 
         //send to kafka
         try{

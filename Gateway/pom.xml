@@ -63,11 +63,10 @@
             <version>7.9.2</version>
         </dependency>
         <!--        &lt;!&ndash; Redis cache (for api-key lookup, rate limiting) &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-starter-data-redis</artifactId>-->
-
-        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
 
         <!--        User Agent Parser-->
         <!-- https://mvnrepository.com/artifact/com.github.ua-parser/uap-java -->

@@ -1,0 +1,50 @@
+{
+  "default": {
+    "gateway_url": "http://localhost:8001/event",
+    "total_events": 1000,
+    "concurrent_requests": 50,
+    "batch_size": 10,
+    "ramp_up_seconds": 10,
+    "verbose": false
+  },
+  "quick": {
+    "gateway_url": "http://localhost:8001/event",
+    "total_events": 100,
+    "concurrent_requests": 10,
+    "batch_size": 5,
+    "ramp_up_seconds": 2,
+    "verbose": true
+  },
+  "load_test": {
+    "gateway_url": "http://localhost:8001/event",
+    "total_events": 10000,
+    "concurrent_requests": 100,
+    "batch_size": 20,
+    "ramp_up_seconds": 30,
+    "verbose": false
+  },
+  "stress_test": {
+    "gateway_url": "http://localhost:8001/event",
+    "total_events": 50000,
+    "concurrent_requests": 200,
+    "batch_size": 50,
+    "ramp_up_seconds": 60,
+    "verbose": false
+  },
+  "endurance_test": {
+    "gateway_url": "http://localhost:8001/event",
+    "test_duration_seconds": 3600,
+    "concurrent_requests": 75,
+    "batch_size": 15,
+    "ramp_up_seconds": 30,
+    "verbose": false
+  },
+  "spike_test": {
+    "gateway_url": "http://localhost:8001/event",
+    "total_events": 5000,
+    "concurrent_requests": 500,
+    "batch_size": 100,
+    "ramp_up_seconds": 5,
+    "verbose": false
+  }
+}

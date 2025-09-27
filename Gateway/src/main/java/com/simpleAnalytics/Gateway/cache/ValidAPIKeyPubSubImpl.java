@@ -1,4 +1,4 @@
-package com.simpleAnalytics.Gateway.pubsub;
+package com.simpleAnalytics.Gateway.cache;
 
 public class ValidAPIKeyPubSubImpl {
 

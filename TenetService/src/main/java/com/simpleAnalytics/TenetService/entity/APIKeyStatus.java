@@ -1,4 +1,4 @@
-package com.simpleAnalytics.Gateway.entity;
+package com.simpleAnalytics.TenetService.entity;
 
 public enum APIKeyStatus {
     APIKeyValid,
