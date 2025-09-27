@@ -1,7 +1,8 @@
 package com.simpleAnalytics.TenetService.entity;
 
-import com.simpleAnalytics.Gateway.entity.APIKeyStatus;
+import com.simpleAnalytics.TenetService.entity.APIKeyStatus;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;

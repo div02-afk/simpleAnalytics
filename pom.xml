@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.simpleAnalytics</groupId>
+    <artifactId>simple-analytics-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <name>Simple Analytics - Parent</name>
+    <description>Parent POM for Simple Analytics Event Ingestion System</description>
+    
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>17</java.version>
+        
+        <!-- Spring Boot Version -->
+        <spring-boot.version>3.4.9</spring-boot.version>
+        
+        <!-- Other Dependencies -->
+        <protobuf.version>4.28.2</protobuf.version>
+        <confluent.version>7.9.2</confluent.version>
+        <clickhouse.version>0.6.2</clickhouse.version>
+        
+        <!-- Plugin Versions -->
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
+        <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
+        <maven-failsafe-plugin.version>3.0.0-M9</maven-failsafe-plugin.version>
+        
+        <!-- Service Ports -->
+        <gateway.port>8001</gateway.port>
+        <eventconsumer.port>8000</eventconsumer.port>
+        <tenetservice.port>8080</tenetservice.port>
+        
+        <!-- Service JAR Names -->
+        <gateway.jar>Gateway-0.0.1-SNAPSHOT.jar</gateway.jar>
+        <eventconsumer.jar>EventConsumer-0.0.1-SNAPSHOT.jar</eventconsumer.jar>
+        <tenetservice.jar>TenetService-0.0.1-SNAPSHOT.jar</tenetservice.jar>
+    </properties>
+    
+    <!-- Modules -->
+    <modules>
+        <module>Gateway</module>
+        <module>EventConsumer</module>
+        <module>TenetService</module>
+    </modules>
+    
+    <!-- Repositories -->
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+    
+    <!-- Dependency Management -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot BOM -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- Protocol Buffers -->
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
+            </dependency>
+            
+            <!-- Confluent Kafka Serializers -->
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-protobuf-serializer</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            
+            <!-- ClickHouse JDBC -->
+            <dependency>
+                <groupId>com.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Spring Boot Maven Plugin -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                
+                <!-- Maven Compiler Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                
+                <!-- OS Maven Plugin for Protobuf -->
+                <plugin>
+                    <groupId>kr.motd.maven</groupId>
+                    <artifactId>os-maven-plugin</artifactId>
+                    <version>${os-maven-plugin.version}</version>
+                </plugin>
+                
+                <!-- Protobuf Maven Plugin -->
+                <plugin>
+                    <groupId>org.xolstice.maven.plugins</groupId>
+                    <artifactId>protobuf-maven-plugin</artifactId>
+                    <version>${protobuf-maven-plugin.version}</version>
+                    <configuration>
+                        <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                
+                <!-- Exec Maven Plugin for running services -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
+        <plugins>
+            <!-- OS Maven Plugin (required for protobuf compilation) -->
+            <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <profiles>
+        <!-- Profile for starting Docker services -->
+        <profile>
+            <id>docker-start</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-docker-services</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker-compose</executable>
+                                    <workingDirectory>${project.basedir}/common</workingDirectory>
+                                    <arguments>
+                                        <argument>up</argument>
+                                        <argument>-d</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for stopping Docker services -->
+        <profile>
+            <id>docker-stop</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>stop-docker-services</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker-compose</executable>
+                                    <workingDirectory>${project.basedir}/common</workingDirectory>
+                                    <arguments>
+                                        <argument>down</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for running Gateway service -->
+        <profile>
+            <id>run-gateway</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>run-gateway</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.simpleAnalytics.Gateway.GatewayApplication</mainClass>
+                                    <workingDirectory>${project.basedir}/Gateway</workingDirectory>
+                                    <jvmArguments>-Dserver.port=${gateway.port}</jvmArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for running EventConsumer service -->
+        <profile>
+            <id>run-eventconsumer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>run-eventconsumer</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.simpleAnalytics.EventConsumer.EventConsumerApplication</mainClass>
+                                    <workingDirectory>${project.basedir}/EventConsumer</workingDirectory>
+                                    <jvmArguments>-Dserver.port=${eventconsumer.port}</jvmArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for running TenetService -->
+        <profile>
+            <id>run-tenetservice</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>run-tenetservice</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.simpleAnalytics.TenetService.TenetServiceApplication</mainClass>
+                                    <workingDirectory>${project.basedir}/TenetService</workingDirectory>
+                                    <jvmArguments>-Dserver.port=${tenetservice.port}</jvmArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for running all services (requires separate terminals) -->
+        <profile>
+            <id>run-all-services</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Start Gateway -->
+                            <execution>
+                                <id>start-gateway</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cmd</executable>
+                                    <async>true</async>
+                                    <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                                    <arguments>
+                                        <argument>/c</argument>
+                                        <argument>start</argument>
+                                        <argument>"Gateway Service"</argument>
+                                        <argument>mvn</argument>
+                                        <argument>-pl</argument>
+                                        <argument>Gateway</argument>
+                                        <argument>spring-boot:run</argument>
+                                        <argument>-Dspring-boot.run.jvmArguments="-Dserver.port=${gateway.port}"</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            
+                            <!-- Start EventConsumer -->
+                            <execution>
+                                <id>start-eventconsumer</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cmd</executable>
+                                    <async>true</async>
+                                    <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                                    <arguments>
+                                        <argument>/c</argument>
+                                        <argument>start</argument>
+                                        <argument>"EventConsumer Service"</argument>
+                                        <argument>mvn</argument>
+                                        <argument>-pl</argument>
+                                        <argument>EventConsumer</argument>
+                                        <argument>spring-boot:run</argument>
+                                        <argument>-Dspring-boot.run.jvmArguments="-Dserver.port=${eventconsumer.port}"</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            
+                            <!-- Start TenetService -->
+                            <execution>
+                                <id>start-tenetservice</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>cmd</executable>
+                                    <async>true</async>
+                                    <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                                    <arguments>
+                                        <argument>/c</argument>
+                                        <argument>start</argument>
+                                        <argument>"TenetService"</argument>
+                                        <argument>mvn</argument>
+                                        <argument>-pl</argument>
+                                        <argument>TenetService</argument>
+                                        <argument>spring-boot:run</argument>
+                                        <argument>-Dspring-boot.run.jvmArguments="-Dserver.port=${tenetservice.port}"</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Development profile with debug settings -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+                <logging.level.com.simpleAnalytics>DEBUG</logging.level.com.simpleAnalytics>
+            </properties>
+        </profile>
+        
+        <!-- Testing profile -->
+        <profile>
+            <id>test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-failsafe-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Production profile -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+                <logging.level.root>WARN</logging.level.root>
+                <logging.level.com.simpleAnalytics>INFO</logging.level.com.simpleAnalytics>
+            </properties>
+        </profile>
+    </profiles>
+</project>

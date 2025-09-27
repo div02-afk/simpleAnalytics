@@ -1,6 +1,5 @@
 package com.simpleAnalytics.TenetService.service.impl;
 
-import com.simpleAnalytics.TenetService.dto.ApplicationDTO;
 import com.simpleAnalytics.TenetService.entity.Application;
 import com.simpleAnalytics.TenetService.entity.CreditInfo;
 import com.simpleAnalytics.TenetService.exception.InsufficientCreditsException;

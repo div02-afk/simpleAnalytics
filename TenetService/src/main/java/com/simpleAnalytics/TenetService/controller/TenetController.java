@@ -13,7 +13,7 @@ public class TenetController {
     @GetMapping
     public ResponseEntity<APIKeyInfo> getAPIKeyInfo() {
         try{
-
+            return ResponseEntity.ok(new APIKeyInfo());
         }catch(Exception e){
 
             return ResponseEntity.notFound().build();
