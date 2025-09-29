@@ -3,6 +3,8 @@ package com.simpleAnalytics.Gateway.controller;
 
 import com.simpleAnalytics.Gateway.entity.Context;
 import com.simpleAnalytics.Gateway.entity.UserEvent;
+import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
+import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
 import com.simpleAnalytics.Gateway.service.EventPipelineService;
 import com.simpleAnalytics.Gateway.service.EventPipelineServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,11 @@ public class EventController {
         Context context = exchange.getAttribute("context");
         try{
             eventPipelineService.processEvent(event,auth, context);
-        }catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing event, " + e.getMessage());
+        }catch (InsufficientCreditsException | InvalidAPIKeyException e ){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        catch(Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing event");
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }

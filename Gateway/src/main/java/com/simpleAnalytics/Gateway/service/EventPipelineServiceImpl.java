@@ -6,6 +6,9 @@ import com.simpleAnalytics.Gateway.MQ.EventProducer;
 import com.simpleAnalytics.Gateway.MQ.impl.EventProducerImpl;
 import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
 import com.simpleAnalytics.Gateway.entity.*;
+import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
+import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
+import com.simpleAnalytics.protobuf.EventProto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Retryable;
@@ -27,30 +30,23 @@ public class EventPipelineServiceImpl implements EventPipelineService {
     private final APIKeyValidityCheck apiKeyValidityCheck;
 
     @Retryable(retryFor = RuntimeException.class)
-    public void processEvent(UserEvent newUserEvent,UUID apiKey, Context context) throws RuntimeException {
+    public void processEvent(UserEvent newUserEvent, UUID apiKey, Context context) throws RuntimeException, InsufficientCreditsException, InvalidAPIKeyException {
         validateUserEvent(newUserEvent);
-
-        Event event = Event.builder()
-                .Id(UUID.randomUUID())
-                .receivedAt(Timestamp.valueOf(LocalDateTime.now()))
-                .context(context)
-                .schemaVersion(CURRENT_SCHEMA_VERSION)
-                .userEvent(newUserEvent)
-                .build();
+        UUID eventId = UUID.randomUUID();
+        EventProto.Event event = EventMapper.toProtoEvent(eventId,CURRENT_SCHEMA_VERSION,newUserEvent,context);
         log.info("Processing event {}", event.getId());
         EventCreditConsumptionInfo eventCreditConsumptionInfo = EventCreditConsumptionInfo
                 .builder()
-                .applicationId(event.getId())
+                .applicationId(eventId)
                 .creditAmount(1)
                 .build();
 
         apiKeyValidityCheck.isAPIKeyValid(apiKey);
 
         //send to kafka
-        try{
-
-        eventProducer.sendEvent("event", event);
-        creditEventProducer.sendCreditUtilizationEvent("creditUtilization", eventCreditConsumptionInfo);
+        try {
+            eventProducer.sendEvent("event", event);
+            creditEventProducer.sendCreditUtilizationEvent("creditUtilization", eventCreditConsumptionInfo);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

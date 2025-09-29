@@ -18,8 +18,8 @@ import java.util.concurrent.ExecutionException;
 public class EventProducerImpl implements EventProducer {
     private final KafkaTemplate<String, EventProto.Event> eventKafkaTemplate;
     @Override
-    public void sendEvent(String topic, Event event) throws ExecutionException, InterruptedException {
-        eventKafkaTemplate.send(topic, EventMapper.toProto(event)).get();
+    public void sendEvent(String topic, EventProto.Event event) throws ExecutionException, InterruptedException {
+        eventKafkaTemplate.send(topic, event).get();
         log.info("Event pushed to Kafka topic={} -> {}", topic, event.getId());
     }
 }

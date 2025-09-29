@@ -1,4 +1,4 @@
-package com.simpleAnalytics.TenetService.exception;
+package com.simpleAnalytics.Gateway.exception;
 
 
 import java.util.UUID;

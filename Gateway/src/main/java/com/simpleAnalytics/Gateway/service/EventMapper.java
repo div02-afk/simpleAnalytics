@@ -2,71 +2,98 @@ package com.simpleAnalytics.Gateway.service;
 
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import com.simpleAnalytics.Gateway.entity.Context;
 import com.simpleAnalytics.Gateway.entity.Event;
+import com.simpleAnalytics.Gateway.entity.SchemaVersion;
+import com.simpleAnalytics.Gateway.entity.UserEvent;
 import com.simpleAnalytics.protobuf.EventProto;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
 @Component
 public class EventMapper {
 
-    private static com.google.protobuf.Timestamp toProtoTimestamp(Timestamp timestamp) {
-
+    private static com.google.protobuf.Timestamp toProtoTimestamp(Timestamp ts) {
+        long seconds = ts.getTime() / 1000;
+        int nanos = ts.getNanos();
         return com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(timestamp.getTime() / 1000)
-                .setNanos(timestamp.getNanos())
+                .setSeconds(seconds)
+                .setNanos(nanos)
                 .build();
     }
 
-    public static EventProto.Event toProto(Event event) {
-        EventProto.Event.Builder builder = EventProto.Event.newBuilder()
-                .setId(event.getId().toString()) // UUID → string
-                .setReceivedAt(toProtoTimestamp(event.getReceivedAt())) // Timestamp → epoch millis
-                .setSchemaVersion(EventProto.SchemaVersion.valueOf(event.getSchemaVersion().name()));
+    public static EventProto.Context toProtoContext(Context ctx) {
+        EventProto.Context.Builder builder = EventProto.Context.newBuilder();
+        safeSet(builder::setIp, ctx.getIp());
+        safeSet(builder::setUserAgent, ctx.getUserAgent());
+        safeSet(builder::setOs, ctx.getOs());
+        safeSet(builder::setBrowser, ctx.getBrowser());
+        safeSet(builder::setDevice, ctx.getDevice());
+        safeSet(builder::setLocale, ctx.getLocale());
+        safeSet(builder::setTimezone, ctx.getTimezone());
+        return builder.build();
+    }
 
-        // map Context if not null
-        if (event.getContext() != null) {
-            builder.setContext(
-                    EventProto.Context.newBuilder()
-                            .setIp(nullSafe(event.getContext().getIp()))
-                            .setUserAgent(nullSafe(event.getContext().getUserAgent()))
-                            .setOs(nullSafe(event.getContext().getOs()))
-                            .setBrowser(nullSafe(event.getContext().getBrowser()))
-                            .setDevice(nullSafe(event.getContext().getDevice()))
-                            .setLocale(nullSafe(event.getContext().getLocale()))
-                            .setTimezone(nullSafe(event.getContext().getTimezone()))
-            );
+    private static void safeSet(Consumer<String> setter, String value) {
+        if (value != null) {
+            setter.accept(value);
         }
+    }
 
-        // map UserEvent if not null
-        if (event.getUserEvent() != null) {
-            EventProto.UserEvent.Builder userEventBuilder = EventProto.UserEvent.newBuilder()
-                    .setAppId(event.getUserEvent().getAppId().toString())
-                    .setAnonymousId(event.getUserEvent().getAnonymousId().toString())
-                    .setSessionId(event.getUserEvent().getSessionId().toString())
-                    .setUserId(event.getUserEvent().getUserId().toString())
-                    .setTimestamp(toProtoTimestamp(event.getUserEvent().getTimestamp()))
-                    .setEventType(event.getUserEvent().getEventType())
-                    .setSource(event.getUserEvent().getSource());
+    public static EventProto.UserEvent toProtoUserEvent(UserEvent ue) {
+        EventProto.UserEvent.Builder builder = EventProto.UserEvent.newBuilder()
+                .setAppId(ue.getAppId().toString())
+                .setAnonymousId(ue.getAnonymousId().toString())
+                .setSessionId(ue.getSessionId().toString())
+                .setUserId(ue.getUserId().toString())
+                .setTimestamp(toProtoTimestamp(ue.getTimestamp()))
+                .setEventType(ue.getEventType())
+                .setSource(ue.getSource());
 
-            // handle metadata map
-            if (event.getUserEvent().getMetadata() != null) {
-                userEventBuilder.setMetadata(
-                        Struct.newBuilder()
-                                .putAllFields(event.getUserEvent().getMetadata().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> Value.newBuilder().setStringValue(e.getValue().toString()).build())))
-                                .build()
-                );
-            }
-
-            builder.setUserEvent(userEventBuilder);
+        if (ue.getMetadata() != null && !ue.getMetadata().isEmpty()) {
+            builder.setMetadata(toProtoStruct(ue.getMetadata()));
         }
 
         return builder.build();
     }
+
+    public static EventProto.Event toProtoEvent(UUID eventId, SchemaVersion defaultSchemaVersion, UserEvent ue, Context context) {
+        EventProto.Event.Builder builder = EventProto.Event.newBuilder()
+                .setId(eventId.toString())
+                .setReceivedAt(com.google.protobuf.Timestamp.getDefaultInstance())
+                .setSchemaVersion(EventProto.SchemaVersion.valueOf(defaultSchemaVersion.toString()))
+                ;
+
+        if (context != null) {
+            builder.setContext(toProtoContext(context));
+        }
+
+        if (ue != null) {
+            builder.setUserEvent(toProtoUserEvent(ue));
+        }
+
+        return builder.build();
+    }
+
+
+    private static Struct toProtoStruct(Map<String, ?> metadata) {
+        Struct.Builder structBuilder = Struct.newBuilder();
+        metadata.forEach((k, v) -> {
+            if (v != null) {
+                structBuilder.putFields(k,
+                        Value.newBuilder().setStringValue(v.toString()).build()
+                );
+            }
+        });
+        return structBuilder.build();
+    }
+
 
     private static String nullSafe(String value) {
         return value == null ? "" : value;
