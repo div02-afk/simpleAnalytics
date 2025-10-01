@@ -1,7 +1,6 @@
 package com.simpleAnalytics.TenetService.cache.impl;
 
 import com.simpleAnalytics.TenetService.cache.CreditService;
-import com.simpleAnalytics.TenetService.entity.Application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

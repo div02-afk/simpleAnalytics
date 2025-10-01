@@ -32,7 +32,10 @@ public class TenetServiceImpl implements TenetService {
                 .applicationsList(new ArrayList<>())
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .name(tenet.getName())
-                .plan(tenet.getPlan())
+                .plan(Plan.builder().id(
+                        tenet.getPlan() != null ?
+                                tenet.getPlan().getId() : null)
+                        .build())
                 .build();
         tenetRepository.save(tenetEntity);
         return tenetEntity.getId();

@@ -61,8 +61,8 @@ services:
     container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: tenet_user
-      POSTGRES_PASSWORD: tenet_pass
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: tenet_db
     ports:
       - "5432:5432"

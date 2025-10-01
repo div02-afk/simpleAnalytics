@@ -15,6 +15,8 @@ import java.util.UUID;
 public class APIKey {
 
     @Id
+    @GeneratedValue
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     private String name;

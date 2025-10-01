@@ -17,6 +17,8 @@ import java.util.UUID;
 public class Application {
 
     @Id
+    @GeneratedValue
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
     private String name;

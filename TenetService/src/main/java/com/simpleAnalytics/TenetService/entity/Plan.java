@@ -1,9 +1,6 @@
 package com.simpleAnalytics.TenetService.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Duration;
@@ -17,7 +14,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Plan {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     UUID id;
     String name;
     long monthlyCreditLimit;
