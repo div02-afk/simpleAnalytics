@@ -1,10 +1,13 @@
 package com.simpleAnalytics.TenetService.service.impl;
 
+import com.simpleAnalytics.TenetService.cache.CreditService;
 import com.simpleAnalytics.TenetService.entity.Application;
+import com.simpleAnalytics.TenetService.entity.Plan;
+import com.simpleAnalytics.TenetService.entity.Tenet;
 import com.simpleAnalytics.TenetService.exception.ApplicationNotFoundException;
-import com.simpleAnalytics.TenetService.exception.InsufficientCreditsException;
 import com.simpleAnalytics.TenetService.repository.ApplicationRepository;
 import com.simpleAnalytics.TenetService.service.ApplicationService;
+import com.simpleAnalytics.TenetService.service.TenetService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +23,22 @@ import java.util.UUID;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
-
+    private final TenetService tenetService;
+    private final CreditService creditService;
     @Override
-    public UUID createApplication(Application application) {
+    public UUID createApplication(UUID tenetId, Application application) {
         application.setId(UUID.randomUUID());
-        Application savedApplication = applicationRepository.save(application);
-        return savedApplication.getId();
+        Optional<Long> optionalPlan =  tenetService.getPlanCreditLimit(tenetId);
+        if(optionalPlan.isPresent()){
+            try {
+                Application savedApplication = applicationRepository.save(application);
+                creditService.setAppLimit(application.getId(),optionalPlan.get());
+                return savedApplication.getId();
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+        }
+        return null;
     }
 
     @Override
@@ -69,7 +82,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new ApplicationNotFoundException(id);
         }
     }
-
 
 
     @Override

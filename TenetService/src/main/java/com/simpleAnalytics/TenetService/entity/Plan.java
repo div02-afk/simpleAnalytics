@@ -20,7 +20,7 @@ public class Plan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     UUID id;
     String name;
-    int monthlyCreditLimit;
+    long monthlyCreditLimit;
     int rateLimit;
     Date startDate;
     Duration duration;

@@ -1,6 +1,5 @@
 package com.simpleAnalytics.Gateway.MQ;
 
-import com.simpleAnalytics.Gateway.entity.Event;
 import com.simpleAnalytics.protobuf.EventProto;
 
 import java.util.concurrent.ExecutionException;

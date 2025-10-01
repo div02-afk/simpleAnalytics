@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ApplicationService {
-    public UUID createApplication(Application application);
+    public UUID createApplication(UUID tenetId,Application application);
 
     public Application getApplication(UUID id);
 

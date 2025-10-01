@@ -16,7 +16,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class CreditUtilisationImpl implements CreditSyncService {
+public class CreditSyncServiceImpl implements CreditSyncService {
     private final RedisTemplate<String, Long> redisTemplate;
     private final ApplicationService applcationService;
 

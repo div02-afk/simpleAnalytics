@@ -1,6 +1,7 @@
 package com.simpleAnalytics.TenetService.service.impl;
 
 import com.simpleAnalytics.TenetService.dto.TenetDTO;
+import com.simpleAnalytics.TenetService.entity.Plan;
 import com.simpleAnalytics.TenetService.entity.Tenet;
 import com.simpleAnalytics.TenetService.repository.TenetRepository;
 import com.simpleAnalytics.TenetService.service.TenetService;
@@ -45,5 +46,15 @@ public class TenetServiceImpl implements TenetService {
     @Override
     public void deleteTenet(UUID id) {
 
+    }
+
+    @Override
+    public Optional<Plan> getPlan(UUID id) {
+        return tenetRepository.findPlanById(id);
+    }
+
+    @Override
+    public Optional<Long> getPlanCreditLimit(UUID id) {
+        return tenetRepository.findPlanCreditLimitById(id);
     }
 }

@@ -1,8 +1,10 @@
 package com.simpleAnalytics.TenetService.service;
 
 import com.simpleAnalytics.TenetService.dto.TenetDTO;
+import com.simpleAnalytics.TenetService.entity.Plan;
 import com.simpleAnalytics.TenetService.entity.Tenet;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TenetService {
@@ -14,4 +16,8 @@ public interface TenetService {
     public void updateTenet(UUID id, Tenet updatedTenet);
 
     public void deleteTenet(UUID id);
+
+    public Optional<Plan> getPlan(UUID id);
+
+    public Optional<Long> getPlanCreditLimit(UUID id);
 }

@@ -1,5 +1,6 @@
-package com.simpleAnalytics.Gateway.cache;
+package com.simpleAnalytics.Gateway.cache.impl;
 
+import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
 import com.simpleAnalytics.Gateway.entity.APIKeyInfo;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
