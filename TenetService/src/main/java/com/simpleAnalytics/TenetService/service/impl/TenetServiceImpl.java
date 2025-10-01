@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TenetServiceImpl implements TenetService {
     private final TenetRepository tenetRepository;
+
     @Override
     public UUID createTenet(TenetDTO tenet) {
         Tenet tenetEntity = Tenet.builder()
@@ -25,15 +27,14 @@ public class TenetServiceImpl implements TenetService {
                 .name(tenet.getName())
                 .plan(tenet.getPlan())
                 .build();
-        tenetRepository.createTenet(tenetEntity);
+        tenetRepository.save(tenetEntity);
         return tenetEntity.getId();
-
     }
 
     @Override
     public TenetDTO getTenet(UUID id) {
-        Tenet tenet =  tenetRepository.getTenet(id);
-        return new TenetDTO(tenet);
+        Optional<Tenet> tenet = tenetRepository.findById(id);
+        return tenet.map(TenetDTO::new).orElse(null);
     }
 
     @Override

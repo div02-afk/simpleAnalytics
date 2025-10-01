@@ -4,6 +4,7 @@ import com.simpleAnalytics.TenetService.entity.Application;
 import com.simpleAnalytics.TenetService.exception.InsufficientCreditsException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ApplicationService {
@@ -15,7 +16,5 @@ public interface ApplicationService {
 
     public void updateApplication(UUID id, Application application);
 
-    public void useCredit(UUID applicationId, int creditAmount) throws InsufficientCreditsException;
-
-    public boolean canUseCredit(UUID applicationId, int creditAmount);
+    public void incrementCredits(UUID applicationId, Long deltaCreditUtilization) ;
 }

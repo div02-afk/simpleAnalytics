@@ -1,18 +1,22 @@
 package com.simpleAnalytics.TenetService.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.UUID;
 
+
+@Entity
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class APIKey {
-    final UUID id;
-    final String name;
-    final Timestamp createdAt;
+    @Id
+     UUID id;
+     String name;
+     Timestamp createdAt;
 }

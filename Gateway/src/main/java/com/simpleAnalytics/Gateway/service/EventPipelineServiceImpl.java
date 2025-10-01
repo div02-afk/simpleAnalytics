@@ -5,6 +5,8 @@ import com.simpleAnalytics.Gateway.MQ.CreditEventProducer;
 import com.simpleAnalytics.Gateway.MQ.EventProducer;
 import com.simpleAnalytics.Gateway.MQ.impl.EventProducerImpl;
 import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
+import com.simpleAnalytics.Gateway.cache.CreditService;
+import com.simpleAnalytics.Gateway.cache.CreditSyncService;
 import com.simpleAnalytics.Gateway.entity.*;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
@@ -28,12 +30,13 @@ public class EventPipelineServiceImpl implements EventPipelineService {
     private final CreditEventProducer creditEventProducer;
     private final SchemaVersion CURRENT_SCHEMA_VERSION = SchemaVersion.V1_0_0;
     private final APIKeyValidityCheck apiKeyValidityCheck;
+    private final CreditSyncService creditSyncService;
 
     @Retryable(retryFor = RuntimeException.class)
     public void processEvent(UserEvent newUserEvent, UUID apiKey, Context context) throws RuntimeException, InsufficientCreditsException, InvalidAPIKeyException {
         validateUserEvent(newUserEvent);
         UUID eventId = UUID.randomUUID();
-        EventProto.Event event = EventMapper.toProtoEvent(eventId,CURRENT_SCHEMA_VERSION,newUserEvent,context);
+        EventProto.Event event = EventMapper.toProtoEvent(eventId, CURRENT_SCHEMA_VERSION, newUserEvent, context);
         log.info("Processing event {}", event.getId());
         EventCreditConsumptionInfo eventCreditConsumptionInfo = EventCreditConsumptionInfo
                 .builder()
@@ -46,10 +49,11 @@ public class EventPipelineServiceImpl implements EventPipelineService {
         //send to kafka
         try {
             eventProducer.sendEvent("event", event);
-            creditEventProducer.sendCreditUtilizationEvent("creditUtilization", eventCreditConsumptionInfo);
+            creditSyncService.incrementCredit(newUserEvent.getAppId());
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     private static void validateUserEvent(UserEvent newUserEvent) {

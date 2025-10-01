@@ -1,17 +1,18 @@
 package com.simpleAnalytics.TenetService.service.impl;
 
 import com.simpleAnalytics.TenetService.entity.Application;
-import com.simpleAnalytics.TenetService.entity.CreditInfo;
+import com.simpleAnalytics.TenetService.exception.ApplicationNotFoundException;
 import com.simpleAnalytics.TenetService.exception.InsufficientCreditsException;
 import com.simpleAnalytics.TenetService.repository.ApplicationRepository;
 import com.simpleAnalytics.TenetService.service.ApplicationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
 
 @Slf4j
 @Service
@@ -22,12 +23,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public UUID createApplication(Application application) {
-        return null;
+        application.setId(UUID.randomUUID());
+        Application savedApplication = applicationRepository.save(application);
+        return savedApplication.getId();
     }
 
     @Override
     public Application getApplication(UUID id) {
-        return null;
+        Optional<Application> application = applicationRepository.findById(id);
+        return application.orElse(null);
     }
 
     @Override
@@ -37,30 +41,41 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void updateApplication(UUID id, Application application) {
-        Application existingApplication = getApplication(id);
-        if (existingApplication != null) {
-            log.error("Application not found");
-            //TODO throw exception
-            return;
-        }
+        Optional<Application> existingApplicationOpt = applicationRepository.findById(id);
+        if (existingApplicationOpt.isPresent()) {
+            Application existingApplication = existingApplicationOpt.get();
 
-    }
+            // Update fields if they are provided in the input application
+            if (application.getName() != null) {
+                existingApplication.setName(application.getName());
+            }
 
-    @Override
-    public boolean canUseCredit(UUID applicationId, int creditAmount) {
-        CreditInfo creditInfo = applicationRepository.getCreditInfo(applicationId);
-        return creditInfo != null && creditInfo.getCreditLimit() > creditAmount + creditInfo.getCreditsUsed();
-    }
+            if (application.getApiKeysList() != null) {
+                existingApplication.setApiKeysList(application.getApiKeysList());
+            }
 
-    @Override
-    public void useCredit(UUID applicationId, int creditAmount) throws InsufficientCreditsException {
-        if (canUseCredit(applicationId, creditAmount)) {
-            log.info("Sufficient credits available for application {}", applicationId);
-            applicationRepository.appendCredits(applicationId, creditAmount);
+            if (application.getSource() != null) {
+                existingApplication.setSource(application.getSource());
+            }
+
+            // Note: Not updating createdAt as it should remain immutable
+            // Note: Not updating creditsUsed directly as it should be managed through credit operations
+            // Save the updated application
+            applicationRepository.save(existingApplication);
+            log.info("Application updated successfully with ID: {}", id);
+
         } else {
-            //TODO throw exception
-            log.info("Insufficient credits for application {}", applicationId);
-            throw new InsufficientCreditsException(applicationId);
+            log.error("Application not found with ID: {}", id);
+            throw new ApplicationNotFoundException(id);
         }
     }
+
+
+
+    @Override
+    @Transactional
+    public void incrementCredits(UUID applicationId, Long deltaCreditUtilization) {
+        applicationRepository.incrementCredits(applicationId, deltaCreditUtilization);
+    }
+
 }

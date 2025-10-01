@@ -56,6 +56,21 @@ services:
     volumes:
       - redis_data:/data
 
+  postgres:
+    image: postgres:15
+    container_name: pg_tenet
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tenet_user
+      POSTGRES_PASSWORD: tenet_pass
+      POSTGRES_DB: tenet_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
 volumes:
   clickhouse_data:
   redis_data:
+  pg_data:

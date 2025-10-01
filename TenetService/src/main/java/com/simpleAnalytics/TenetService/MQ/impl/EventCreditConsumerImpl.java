@@ -24,15 +24,15 @@ public class EventCreditConsumerImpl implements EventCreditConsumer {
 
     @KafkaListener(topics = "creditUtilization", groupId = "credit-consumer")
     public void consume(EventProto.EventCreditConsumptionInfo eventCreditConsumptionInfo) {
-        try {
-            log.info("Consuming {}", eventCreditConsumptionInfo);
-            applicationService.useCredit(UUID.fromString(eventCreditConsumptionInfo.getApplicationId()), eventCreditConsumptionInfo.getCreditAmount());
-        } catch (InsufficientCreditsException e) {
-
-            //TODO: let gateway know about expired limits
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-        }
+//        try {
+//            log.info("Consuming {}", eventCreditConsumptionInfo);
+//            applicationService.useCredit(UUID.fromString(eventCreditConsumptionInfo.getApplicationId()), eventCreditConsumptionInfo.getCreditAmount());
+//        } catch (InsufficientCreditsException e) {
+//
+//            //TODO: let gateway know about expired limits
+//
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//        }
     }
 }
