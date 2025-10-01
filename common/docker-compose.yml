@@ -58,7 +58,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: pg_tenet
+    container_name: postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: tenet_user

@@ -1,29 +1,33 @@
 package com.simpleAnalytics.TenetService.dto;
 
-import com.simpleAnalytics.TenetService.entity.Application;
-import com.simpleAnalytics.TenetService.entity.Plan;
 import com.simpleAnalytics.TenetService.entity.Tenet;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.lang.Nullable;
+import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.sql.Timestamp;
 import java.util.UUID;
 
-
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TenetDTO {
-    @Nullable
-    UUID id;
-    String name;
-    @Nullable
-    List<Application> applicationList;
-    Plan plan;
+
+    private UUID id;
+    private String name;
+    private Timestamp createdAt;
+    private PlanDTO plan;
 
     public TenetDTO(Tenet tenet) {
         this.id = tenet.getId();
-        this.applicationList = tenet.getApplicationsList();
         this.name = tenet.getName();
-        this.plan = tenet.getPlan();
+        this.createdAt = tenet.getCreatedAt();
+        this.plan = PlanDTO.fromEntity(tenet.getPlan());
     }
 
+    public static TenetDTO fromEntity(Tenet tenet) {
+        return tenet != null ? new TenetDTO(tenet) : null;
+    }
 }

@@ -1,6 +1,6 @@
 package com.simpleAnalytics.TenetService.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,12 +14,20 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 public class Tenet {
-    @Id
-    UUID id;
-    String name;
-    List<Application> applicationsList;
-    @ManyToOne
-    Plan plan;
-    Timestamp createdAt;
 
+    @Id
+    private UUID id;
+
+    private String name;
+
+    // One tenet has many applications
+    @OneToMany(mappedBy = "tenet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference("tenet-applications")
+    private List<Application> applicationsList;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
+    private Plan plan;
+
+    private Timestamp createdAt;
 }

@@ -5,7 +5,9 @@ import com.simpleAnalytics.TenetService.entity.Application;
 import com.simpleAnalytics.TenetService.entity.Plan;
 import com.simpleAnalytics.TenetService.entity.Tenet;
 import com.simpleAnalytics.TenetService.exception.ApplicationNotFoundException;
+import com.simpleAnalytics.TenetService.exception.TenetNotFoundException;
 import com.simpleAnalytics.TenetService.repository.ApplicationRepository;
+import com.simpleAnalytics.TenetService.repository.TenetRepository;
 import com.simpleAnalytics.TenetService.service.ApplicationService;
 import com.simpleAnalytics.TenetService.service.TenetService;
 import jakarta.transaction.Transactional;
@@ -23,22 +25,41 @@ import java.util.UUID;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
+    private final TenetRepository tenetRepository;
     private final TenetService tenetService;
     private final CreditService creditService;
+
     @Override
     public UUID createApplication(UUID tenetId, Application application) {
+        log.debug("Creating application for tenet: {}", tenetId);
+
+        // Verify tenet exists
+        Optional<Tenet> tenetOpt = tenetRepository.findById(tenetId);
+        if (tenetOpt.isEmpty()) {
+            log.error("Tenet not found with ID: {}", tenetId);
+            throw new TenetNotFoundException(tenetId);
+        }
+
+        // Set up application
         application.setId(UUID.randomUUID());
-        Optional<Long> optionalPlan =  tenetService.getPlanCreditLimit(tenetId);
-        if(optionalPlan.isPresent()){
+        application.setTenet(tenetOpt.get());
+
+        // Get plan credit limit
+        Optional<Long> optionalPlan = tenetService.getPlanCreditLimit(tenetId);
+        if (optionalPlan.isPresent()) {
             try {
                 Application savedApplication = applicationRepository.save(application);
-                creditService.setAppLimit(application.getId(),optionalPlan.get());
+                creditService.setAppLimit(application.getId(), optionalPlan.get());
+                log.info("Application created successfully with ID: {} for tenet: {}", savedApplication.getId(), tenetId);
                 return savedApplication.getId();
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("Error saving application: {}", e.getMessage());
+                throw new RuntimeException("Failed to create application", e);
             }
+        } else {
+            log.error("No plan found for tenet: {}", tenetId);
+            throw new RuntimeException("Cannot create application: Tenet has no plan configured");
         }
-        return null;
     }
 
     @Override
@@ -82,7 +103,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new ApplicationNotFoundException(id);
         }
     }
-
 
     @Override
     @Transactional

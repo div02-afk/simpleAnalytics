@@ -13,23 +13,27 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApplicationDTO {
+public class ApplicationWithTenetDTO {
 
     private UUID id;
     private String name;
     private String source;
     private Timestamp createdAt;
     private long creditsUsed;
+    private UUID tenetId;
+    private String tenetName; // Additional context that might be useful
 
-    public ApplicationDTO(Application application) {
+    public ApplicationWithTenetDTO(Application application) {
         this.id = application.getId();
         this.name = application.getName();
         this.source = application.getSource();
         this.createdAt = application.getCreatedAt();
         this.creditsUsed = application.getCreditsUsed();
+        this.tenetId = application.getTenetId();
+        this.tenetName = application.getTenet() != null ? application.getTenet().getName() : null;
     }
 
-    public static ApplicationDTO fromEntity(Application application) {
-        return application != null ? new ApplicationDTO(application) : null;
+    public static ApplicationWithTenetDTO fromEntity(Application application) {
+        return application != null ? new ApplicationWithTenetDTO(application) : null;
     }
 }

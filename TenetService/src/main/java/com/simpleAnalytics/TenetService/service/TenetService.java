@@ -17,6 +17,8 @@ public interface TenetService {
 
     public void deleteTenet(UUID id);
 
+    public void setPlan(UUID tenetId, UUID planId);
+
     public Optional<Plan> getPlan(UUID id);
 
     public Optional<Long> getPlanCreditLimit(UUID id);
