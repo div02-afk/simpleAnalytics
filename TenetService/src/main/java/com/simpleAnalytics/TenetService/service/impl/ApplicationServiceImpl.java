@@ -2,7 +2,6 @@ package com.simpleAnalytics.TenetService.service.impl;
 
 import com.simpleAnalytics.TenetService.cache.CreditService;
 import com.simpleAnalytics.TenetService.entity.Application;
-import com.simpleAnalytics.TenetService.entity.Plan;
 import com.simpleAnalytics.TenetService.entity.Tenet;
 import com.simpleAnalytics.TenetService.exception.ApplicationNotFoundException;
 import com.simpleAnalytics.TenetService.exception.TenetNotFoundException;
@@ -13,8 +12,12 @@ import com.simpleAnalytics.TenetService.service.TenetService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,9 +44,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         // Set up application
-        application.setId(UUID.randomUUID());
+//        application.setId(UUID.randomUUID());
         application.setTenet(tenetOpt.get());
-
+        application.setCreatedAt(Timestamp.from(Instant.now()));
+        application.setApiKeysList(null);
         // Get plan credit limit
         Optional<Long> optionalPlan = tenetService.getPlanCreditLimit(tenetId);
         if (optionalPlan.isPresent()) {
@@ -108,6 +112,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public void incrementCredits(UUID applicationId, Long deltaCreditUtilization) {
         applicationRepository.incrementCredits(applicationId, deltaCreditUtilization);
+    }
+
+
+    //TODO add history for past usage
+    @Scheduled(cron = "0 0 0 1 * *")
+    @Override
+    @Transactional
+    @Retryable(retryFor =  Exception.class)
+    public void resetAllApplicationCredits() {
+        log.info("Resetting application credits for tenet");
+        applicationRepository.resetCredits();
     }
 
 }

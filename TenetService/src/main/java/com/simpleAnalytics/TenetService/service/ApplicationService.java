@@ -17,4 +17,6 @@ public interface ApplicationService {
     public void updateApplication(UUID id, Application application);
 
     public void incrementCredits(UUID applicationId, Long deltaCreditUtilization) ;
+
+    public void resetAllApplicationCredits();
 }

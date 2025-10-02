@@ -3,11 +3,12 @@ package com.simpleAnalytics.Gateway.service;
 
 import com.simpleAnalytics.Gateway.MQ.CreditEventProducer;
 import com.simpleAnalytics.Gateway.MQ.EventProducer;
-import com.simpleAnalytics.Gateway.MQ.impl.EventProducerImpl;
 import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
-import com.simpleAnalytics.Gateway.cache.CreditService;
 import com.simpleAnalytics.Gateway.cache.CreditSyncService;
-import com.simpleAnalytics.Gateway.entity.*;
+import com.simpleAnalytics.Gateway.entity.Context;
+import com.simpleAnalytics.Gateway.entity.EventCreditConsumptionInfo;
+import com.simpleAnalytics.Gateway.entity.SchemaVersion;
+import com.simpleAnalytics.Gateway.entity.UserEvent;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
 import com.simpleAnalytics.protobuf.EventProto;
@@ -16,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 

@@ -13,11 +13,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class APIKeyValidityCheckImpl implements APIKeyValidityCheck {
-    private final RedisTemplate<String, APIKeyInfo> redisTemplate;
+//    private final RedisTemplate<String, APIKeyInfo> redisTemplate;
 
     @Override
     public void isAPIKeyValid(UUID apiKey) throws InsufficientCreditsException, InvalidAPIKeyException {
-        APIKeyInfo apiKeyInfo = redisTemplate.opsForValue().get((apiKey).toString());
+        APIKeyInfo apiKeyInfo = null;
         if (apiKeyInfo == null) {
             //TODO: get apikeyinfo from tenetservice
 

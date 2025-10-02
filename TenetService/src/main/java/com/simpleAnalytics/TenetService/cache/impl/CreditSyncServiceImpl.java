@@ -18,34 +18,13 @@ import java.util.UUID;
 @Service
 public class CreditSyncServiceImpl implements CreditSyncService {
     private final RedisTemplate<String, Long> redisTemplate;
-    private final ApplicationService applcationService;
-
-//    @Scheduled(fixedRate = 5000)
-////    @Override
-//
-//    public void syncCreditsToPostgres() {
-//        Set<String> keys = redisTemplate.keys("app:creditUtil:*");
-//
-//        keys.stream().parallel().forEach(key -> {
-//            String appIdStr = key.split(":")[2];
-//            var deltaCreditUtilization = redisTemplate.opsForValue().get(key);
-//            if (deltaCreditUtilization == null || deltaCreditUtilization == 0) {
-//                return;
-//            }
-//            UUID appId = UUID.fromString(appIdStr);
-//            try {
-//                applcationService.incrementCredits(appId, deltaCreditUtilization);
-//                redisTemplate.opsForValue().decrement(key, deltaCreditUtilization);
-//            } catch (Exception e) {
-//                log.error("Error while incrementing credits for application with id {}", appId, e);
-//            }
-//        });
-//    }
+    private final ApplicationService applicationService;
 
 //TODO this can be improved with a batch update
-    @Scheduled(fixedRate = 500)
+    @Scheduled(fixedRate = 5000)
     @Override
     public void syncCreditsToPostgres() {
+//        log.info("syncCreditsToPostgres");
         ScanOptions options = ScanOptions.scanOptions()
                 .match("app:creditUtilization:*")
                 .count(100) // number of keys per batch
@@ -56,7 +35,8 @@ public class CreditSyncServiceImpl implements CreditSyncService {
                 if (delta != null && delta > 0) {
                     UUID appId = UUID.fromString(key.split(":")[2]);
                     try {
-                        applcationService.incrementCredits(appId, delta);
+//                        log.info("Saving credits to database for appId: {}", appId);
+                        applicationService.incrementCredits(appId, delta);
                         redisTemplate.opsForValue().decrement(key, delta);
                     } catch (Exception e) {
                         log.error("Error updating credits for app {}", appId, e);
