@@ -37,11 +37,6 @@ public class EventPipelineServiceImpl implements EventPipelineService {
         UUID eventId = UUID.randomUUID();
         EventProto.Event event = EventMapper.toProtoEvent(eventId, CURRENT_SCHEMA_VERSION, newUserEvent, context);
         log.info("Processing event {}", event.getId());
-        EventCreditConsumptionInfo eventCreditConsumptionInfo = EventCreditConsumptionInfo
-                .builder()
-                .applicationId(eventId)
-                .creditAmount(1)
-                .build();
 
         apiKeyValidityCheck.isAPIKeyValid(apiKey);
 

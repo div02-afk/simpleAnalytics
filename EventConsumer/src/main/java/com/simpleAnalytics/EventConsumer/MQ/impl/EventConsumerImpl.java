@@ -35,7 +35,7 @@ public class EventConsumerImpl implements EventConsumer {
     public void consume(EventProto.Event protoEvent) {
             Event event = EventMapper.toJava(protoEvent);
         try {
-            log.info("Saving Event: {}", event);
+//            log.info("Saving Event: {}", event.getId());
 
             eventRepository.save(event);
             log.info("Saved Event: {}", event.getId());

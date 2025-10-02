@@ -2,17 +2,24 @@
 # Simple Analytics Event Ingestion Performance Testing
 
 param(
-    [string]$GatewayUrl = "http://localhost:8080",
+    [string]$GatewayUrl = "http://localhost:8001",
     [int]$Events = 1000,
     [int]$Concurrent = 50,
     [int]$BatchSize = 10,
     [int]$Duration = 0,
-    [string]$AppId = [System.Guid]::NewGuid(),
+    [string]$AppId = "",  # Will use random existing app by default
     [string]$AuthToken = [System.Guid]::NewGuid(),
     [string]$OutputFile = "",
     [switch]$Verbose,
     [switch]$StartServices,
-    [switch]$StopServices
+    [switch]$StopServices,
+    [switch]$SingleApp,     # Use only specified AppId
+    [switch]$ListApps,      # List available app IDs
+    # Rate limiting options
+    [int]$TargetRPS = 0,    # Target requests per second
+    [switch]$RampUp,        # Gradually ramp up to target RPS
+    [int]$RampDuration = 60, # Ramp up duration in seconds
+    [int]$RateDuration = 300 # Rate-limited test duration in seconds
 )
 
 # Color output functions
@@ -145,35 +152,72 @@ function Start-Benchmark {
         [string]$ApplicationId,
         [string]$Authorization,
         [string]$Output,
-        [bool]$VerboseOutput
+        [bool]$VerboseOutput,
+        # Rate limiting parameters
+        [int]$TargetRPS,
+        [bool]$RampUp,
+        [int]$RampDuration,
+        [int]$RateDuration
     )
     
     Write-Info "Starting event ingestion benchmark..."
     Write-Info "Configuration:"
     Write-Host "  Gateway URL: $Url"
-    if ($TestDuration -gt 0) {
-        Write-Host "  Test Duration: $TestDuration seconds"
+    
+    # Display test mode and parameters
+    if ($TargetRPS -gt 0) {
+        Write-Host "  Mode: Rate Limited ($TargetRPS RPS)" -ForegroundColor Cyan
+        if ($RampUp) {
+            Write-Host "  Ramp Up: $RampDuration seconds to reach target" -ForegroundColor Cyan
+        }
+        Write-Host "  Test Duration: $RateDuration seconds" -ForegroundColor Cyan
     } else {
-        Write-Host "  Total Events: $EventCount"
+        Write-Host "  Mode: Traditional Load Test" -ForegroundColor Cyan
+        if ($TestDuration -gt 0) {
+            Write-Host "  Test Duration: $TestDuration seconds"
+        } else {
+            Write-Host "  Total Events: $EventCount"
+        }
+        Write-Host "  Concurrent Requests: $ConcurrentRequests"
+        Write-Host "  Batch Size: $BatchSize"
     }
-    Write-Host "  Concurrent Requests: $ConcurrentRequests"
-    Write-Host "  Batch Size: $BatchSize"
+    
     Write-Host "  App ID: $ApplicationId"
     Write-Host ""
     
     $arguments = @(
         "$PSScriptRoot\event-ingestion-benchmark.py",
         "--url", $Url,
-        "--concurrent", $ConcurrentRequests,
-        "--batch-size", $BatchSize,
-        "--app-id", $ApplicationId,
         "--auth-token", $Authorization
     )
     
-    if ($TestDuration -gt 0) {
-        $arguments += "--duration", $TestDuration
+    # Handle app ID arguments
+    if ($ApplicationId) {
+        $arguments += "--app-id", $ApplicationId
+        if ($SingleApp) {
+            $arguments += "--single-app"
+        }
+    }
+    
+    # Rate limiting vs traditional mode
+    if ($TargetRPS -gt 0) {
+        $arguments += "--target-rps", $TargetRPS
+        $arguments += "--rate-duration", $RateDuration
+        
+        if ($RampUp) {
+            $arguments += "--ramp-up"
+            $arguments += "--ramp-duration", $RampDuration
+        }
     } else {
-        $arguments += "--events", $EventCount
+        # Traditional mode parameters
+        $arguments += "--concurrent", $ConcurrentRequests
+        $arguments += "--batch-size", $BatchSize
+        
+        if ($TestDuration -gt 0) {
+            $arguments += "--duration", $TestDuration
+        } else {
+            $arguments += "--events", $EventCount
+        }
     }
     
     if ($Output) {
@@ -202,6 +246,18 @@ Write-Host "    SIMPLE ANALYTICS EVENT INGESTION BENCHMARK" -ForegroundColor Blu
 Write-Host "="*60 -ForegroundColor Blue
 Write-Host ""
 
+# Handle list apps command
+if ($ListApps) {
+    Write-Info "Listing available application IDs..."
+    try {
+        & python "$PSScriptRoot\event-ingestion-benchmark.py" --list-apps
+        exit 0
+    } catch {
+        Write-Error "Failed to list applications: $_"
+        exit 1
+    }
+}
+
 # Handle service management
 if ($StopServices) {
     Stop-Services
@@ -229,11 +285,60 @@ if (-not (Install-Dependencies)) {
 Test-ServicesRunning
 
 # Run benchmark
-if ($Duration -gt 0) {
-    Start-Benchmark -Url $GatewayUrl -TestDuration $Duration -ConcurrentRequests $Concurrent -BatchSize $BatchSize -ApplicationId $AppId -Authorization $AuthToken -Output $OutputFile -VerboseOutput $Verbose
-} else {
-    Start-Benchmark -Url $GatewayUrl -EventCount $Events -ConcurrentRequests $Concurrent -BatchSize $BatchSize -ApplicationId $AppId -Authorization $AuthToken -Output $OutputFile -VerboseOutput $Verbose
+$benchmarkArgs = @{
+    Url = $GatewayUrl
+    Authorization = $AuthToken
+    Output = $OutputFile
+    VerboseOutput = $Verbose
+    # Rate limiting parameters
+    TargetRPS = $TargetRPS
+    RampUp = $RampUp.IsPresent
+    RampDuration = $RampDuration
+    RateDuration = $RateDuration
 }
+
+# Traditional mode parameters (only used if not rate limited)
+if ($TargetRPS -eq 0) {
+    $benchmarkArgs.ConcurrentRequests = $Concurrent
+    $benchmarkArgs.BatchSize = $BatchSize
+}
+
+# Handle AppId - use existing apps by default unless SingleApp is specified
+if ($AppId -and $SingleApp) {
+    $benchmarkArgs.ApplicationId = $AppId
+    Write-Info "Using single application ID: $AppId"
+} elseif ($AppId) {
+    $benchmarkArgs.ApplicationId = $AppId
+    if ($TargetRPS -eq 0) {
+        Write-Info "Starting with app ID: $AppId (will use random existing apps)"
+    } else {
+        Write-Info "Rate-limited test with app ID: $AppId"
+    }
+} else {
+    $benchmarkArgs.ApplicationId = ""  # Let Python script choose random existing app
+    if ($TargetRPS -eq 0) {
+        Write-Info "Using random existing application IDs from database"
+    } else {
+        Write-Info "Rate-limited test using random existing application IDs"
+    }
+}
+
+# Set duration/events based on mode
+if ($TargetRPS -gt 0) {
+    # Rate-limited mode - duration is handled by RateDuration parameter
+    Write-Info "Rate-limited mode: $TargetRPS RPS for $RateDuration seconds"
+    if ($RampUp) {
+        Write-Info "Ramping up over $RampDuration seconds"
+    }
+} elseif ($Duration -gt 0) {
+    $benchmarkArgs.TestDuration = $Duration
+    Write-Info "Duration-based test: $Duration seconds"
+} else {
+    $benchmarkArgs.EventCount = $Events
+    Write-Info "Event count-based test: $Events events"
+}
+
+Start-Benchmark @benchmarkArgs
 
 Write-Host ""
 Write-Info "Benchmark completed. Check the results above."
