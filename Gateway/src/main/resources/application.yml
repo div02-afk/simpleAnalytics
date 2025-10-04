@@ -22,3 +22,19 @@ spring:
     properties:
       schema.registry.url: http://localhost:8081
     bootstrap-servers: localhost:29092
+logging:
+#  level:
+#    net.devh.boot.grpc: DEBUG
+#    io.grpc: DEBUG
+#    com.simpleAnalytics: DEBUG
+
+grpc:
+  client:
+    GLOBAL:
+      address: "static://localhost:9090"
+      negotiation-type: plaintext
+    apikey-service:
+      address: "static://localhost:9090"
+      negotiation-type: plaintext
+      enable-keep-alive: true
+      keep-alive-without-calls: true

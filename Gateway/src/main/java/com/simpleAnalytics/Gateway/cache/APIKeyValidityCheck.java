@@ -7,5 +7,10 @@ import java.util.UUID;
 
 public interface APIKeyValidityCheck {
 
-    public void isAPIKeyValid(UUID apiKey) throws InsufficientCreditsException, InvalidAPIKeyException;
+    public void checkAPIKeyValidity(UUID apiKey, UUID claimedApplicationId) throws InsufficientCreditsException, InvalidAPIKeyException;
+
+    public void cacheAPIKeyApplicationId(UUID apikey, UUID applicationId);
+    public String getCachedAPIKeyApplicationId(UUID apikey);
 }
+
+

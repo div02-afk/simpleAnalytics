@@ -5,19 +5,19 @@ import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+//import org.springframework.web.filter.OncePerRequestFilter;
 import ua_parser.Client;
 import ua_parser.Parser;
 import java.io.IOException;
 
 @Slf4j
-@Component
+//@Component
 @Order(1)
-public class ContextEnrichmentFilter extends OncePerRequestFilter {
+public class ContextEnrichmentFilter  {
 
     private final Parser uaParser = new Parser();
 
-    @Override
+//    @Override
     protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws ServletException, IOException {
         // 1. Extract IP
         String ip = String.valueOf(request.getHeaders("X-Forwarded-For"));

@@ -14,7 +14,7 @@ import java.util.UUID;
 public class CreditServiceImpl implements CreditService {
     private final RedisTemplate<String, Long> redisTemplate;
 
-
+    //TODO add cache invalidation/TTL
     @Override
     public long getCreditLimit(UUID appId) {
         Long creditLimit = redisTemplate.opsForValue().get("app:creditLimit:" + appId.toString());
@@ -25,6 +25,14 @@ public class CreditServiceImpl implements CreditService {
             return -1;
         }
     }
+
+    @Override
+    public long getDetlaCreditUtilization(UUID appId) {
+        Long creditLimit = redisTemplate.opsForValue().get("app:deltaCreditUtilization:" + appId.toString());
+        return creditLimit == null ? 0 : creditLimit;
+    }
+
+
 
     @Override
     public long getCreditUtilization(UUID appId) {

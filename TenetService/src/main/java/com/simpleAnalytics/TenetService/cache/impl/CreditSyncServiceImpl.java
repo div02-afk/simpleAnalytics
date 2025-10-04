@@ -26,7 +26,7 @@ public class CreditSyncServiceImpl implements CreditSyncService {
     public void syncCreditsToPostgres() {
 //        log.info("syncCreditsToPostgres");
         ScanOptions options = ScanOptions.scanOptions()
-                .match("app:creditUtilization:*")
+                .match("app:deltaCreditUtilization:*")
                 .count(100) // number of keys per batch
                 .build();
         try (Cursor<String> cursor = redisTemplate.scan(options)) {
@@ -43,6 +43,18 @@ public class CreditSyncServiceImpl implements CreditSyncService {
                     }
                 }
             });
+        }
+    }
+
+    //reset monthly
+    @Scheduled(cron = "0 0 0 1 * *")
+    public void resetCreditLimitsInCache(){
+        ScanOptions options = ScanOptions.scanOptions().match("app:creditUtilization:*")
+                .count(100)
+                .build();
+
+        try (Cursor<String> cursor = redisTemplate.scan(options)) {
+            cursor.forEachRemaining(redisTemplate::delete);
         }
     }
 }

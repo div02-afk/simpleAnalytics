@@ -1,5 +1,6 @@
 package com.simpleAnalytics.TenetService.config;
 
+import com.simpleAnalytics.protobuf.APIKeyValidationProto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -26,4 +27,19 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+
+//    @Bean RedisTemplate<String, APIKeyValidationProto.APIKeyInfo> redisTemplateAPIKeyInfo(RedisConnectionFactory connectionFactory){
+//        RedisTemplate<String, APIKeyValidationProto.APIKeyInfo> template = new RedisTemplate<>();
+//
+//        // Key serializer
+//        template.setKeySerializer(new StringRedisSerializer());
+//        template.setHashKeySerializer(new StringRedisSerializer());
+//
+//        // Value serializer (convert APIKeyInfo to string safely)
+//        template.setValueSerializer(new GenericToStringSerializer<>(APIKeyValidationProto.APIKeyInfo.class));
+//        template.setHashValueSerializer(new GenericToStringSerializer<>(APIKeyValidationProto.APIKeyInfo.class));
+//
+//        template.afterPropertiesSet();
+//        return template;
+//    }
 }

@@ -6,13 +6,10 @@ import com.simpleAnalytics.Gateway.entity.UserEvent;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
 import com.simpleAnalytics.Gateway.service.EventPipelineService;
-import com.simpleAnalytics.Gateway.service.EventPipelineServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.util.UUID;
@@ -29,15 +26,14 @@ public class EventController {
 
 
     @PostMapping
-    public ResponseEntity<String> postEvent(@RequestBody UserEvent event, ServerWebExchange exchange) {
-        UUID auth = UUID.randomUUID();
-        Context context = exchange.getAttribute("context");
-        try{
-            eventPipelineService.processEvent(event,auth, context);
-        }catch (InsufficientCreditsException | InvalidAPIKeyException e ){
+    public ResponseEntity<String> postEvent(@RequestBody UserEvent event, @RequestHeader("X-Auth") UUID apikey) {
+
+        Context context = null;
+        try {
+            eventPipelineService.processEvent(event, apikey, context);
+        } catch (InsufficientCreditsException | InvalidAPIKeyException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing event");
         }
         return new ResponseEntity<>(HttpStatus.OK);

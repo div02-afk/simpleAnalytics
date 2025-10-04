@@ -21,8 +21,9 @@ public class CreditSyncServiceImpl implements CreditSyncService {
         long creditUtil = creditService.getCreditUtilization(appId);
 
         if (creditLimit > creditUtil) {
+            redisTemplate.opsForValue().increment("app:deltaCreditUtilization:" + appId.toString());
             redisTemplate.opsForValue().increment("app:creditUtilization:" + appId.toString());
-        }else {
+        } else {
             throw new InsufficientCreditsException(appId);
         }
 

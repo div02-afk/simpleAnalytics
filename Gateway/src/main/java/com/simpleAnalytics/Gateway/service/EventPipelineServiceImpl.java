@@ -6,11 +6,11 @@ import com.simpleAnalytics.Gateway.MQ.EventProducer;
 import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
 import com.simpleAnalytics.Gateway.cache.CreditSyncService;
 import com.simpleAnalytics.Gateway.entity.Context;
-import com.simpleAnalytics.Gateway.entity.EventCreditConsumptionInfo;
 import com.simpleAnalytics.Gateway.entity.SchemaVersion;
 import com.simpleAnalytics.Gateway.entity.UserEvent;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
+import com.simpleAnalytics.Gateway.exception.InvalidUserEvent;
 import com.simpleAnalytics.protobuf.EventProto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +32,18 @@ public class EventPipelineServiceImpl implements EventPipelineService {
     private final CreditSyncService creditSyncService;
 
     @Retryable(retryFor = RuntimeException.class)
-    public void processEvent(UserEvent newUserEvent, UUID apiKey, Context context) throws RuntimeException, InsufficientCreditsException, InvalidAPIKeyException {
+    public void processEvent(UserEvent newUserEvent, UUID apiKey, Context context) throws InvalidUserEvent, InsufficientCreditsException, InvalidAPIKeyException,RuntimeException {
+
+
+        //throws invalidapikey exception
+        apiKeyValidityCheck.checkAPIKeyValidity(apiKey, newUserEvent.getAppId());
+
+        //throws invaliduserevent exception
         validateUserEvent(newUserEvent);
+
         UUID eventId = UUID.randomUUID();
         EventProto.Event event = EventMapper.toProtoEvent(eventId, CURRENT_SCHEMA_VERSION, newUserEvent, context);
         log.info("Processing event {}", event.getId());
-
-        apiKeyValidityCheck.isAPIKeyValid(apiKey);
 
         //send to kafka
         try {
@@ -50,17 +55,17 @@ public class EventPipelineServiceImpl implements EventPipelineService {
 
     }
 
-    private static void validateUserEvent(UserEvent newUserEvent) {
+    private static void validateUserEvent(UserEvent newUserEvent) throws InvalidUserEvent{
         if (newUserEvent.getAnonymousId() == null) {
-            throw new RuntimeException("Anonymous Id required");
+            throw new InvalidUserEvent("Anonymous Id required");
         } else if (newUserEvent.getEventType() == null) {
-            throw new RuntimeException("Event type required");
+            throw new InvalidUserEvent("Event type required");
         } else if (newUserEvent.getAppId() == null) {
-            throw new RuntimeException("Application Id required");
+            throw new InvalidUserEvent("Application Id required");
         } else if (newUserEvent.getSource() == null) {
-            throw new RuntimeException("Source required");
+            throw new InvalidUserEvent("Source required");
         } else if (newUserEvent.getTimestamp() == null) {
-            throw new RuntimeException("Timestamp required");
+            throw new InvalidUserEvent("Timestamp required");
         }
     }
 }

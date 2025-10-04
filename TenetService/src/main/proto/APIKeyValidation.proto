@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package com.simpleAnalytics.protobuf;
+
+option java_package = "com.simpleAnalytics.protobuf";
+option java_outer_classname = "APIKeyValidationProto";
+
+
+message APIKeyValidationRequest {
+  string apikey = 1;
+}
+
+message APIKeyValidationResponse {
+  string applicationId = 1;
+}
+
+message CreditInfo {
+  uint32 creditLimit = 1;
+  uint32  creditUtilization = 2;
+}
+
+service APIKeyService {
+  rpc GetApplicationId(APIKeyValidationRequest) returns (APIKeyValidationResponse);
+}
