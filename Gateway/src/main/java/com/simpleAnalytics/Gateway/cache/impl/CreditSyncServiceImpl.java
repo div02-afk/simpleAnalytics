@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CreditSyncServiceImpl implements CreditSyncService {
     private final RedisTemplate<String, Long> redisTemplate;
     private final CreditService creditService;
-
+    //TODO make get/set calls parallel
     public void incrementCredit(UUID appId) throws InsufficientCreditsException {
         long creditLimit = creditService.getCreditLimit(appId);
         long creditUtil = creditService.getCreditUtilization(appId);

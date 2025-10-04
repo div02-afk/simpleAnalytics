@@ -188,7 +188,8 @@ class BenchmarkRunner:
         """Send a single event to the gateway"""
         headers = {
             # "Authorization": self.config.auth_token,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-Auth":"880e8400-e29b-41d4-a716-446655440001"
         }
         
         start_time = time.time()
@@ -207,8 +208,8 @@ class BenchmarkRunner:
                     
                     if response.status == 200:
                         self.events_sent += 1
-                        if self.config.verbose:
-                            logger.info(f"✓ Event sent successfully in {response_time_ms:.2f}ms")
+                        # if self.config.verbose:
+                        #     logger.info(f"✓ Event sent successfully in {response_time_ms:.2f}ms")
                         return True
                     else:
                         self.events_failed += 1
