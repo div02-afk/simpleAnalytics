@@ -2,9 +2,9 @@ package com.simpleAnalytics.Gateway.rpc.impl;
 
 
 import com.simpleAnalytics.Gateway.rpc.APIKeyService;
-import com.simpleAnalytics.protobuf.APIKeyServiceGrpc;
-import com.simpleAnalytics.protobuf.APIKeyValidationProto.APIKeyValidationRequest;
-import com.simpleAnalytics.protobuf.APIKeyValidationProto.APIKeyValidationResponse;
+import com.simpleAnalytics.protobuf.TenetServiceGrpc;
+import com.simpleAnalytics.protobuf.TenetProto.APIKeyValidationRequest;
+import com.simpleAnalytics.protobuf.TenetProto.APIKeyValidationResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -17,10 +17,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class APIKeyServiceImpl implements APIKeyService {
 
-    @GrpcClient("apikey-service")
-    private APIKeyServiceGrpc.APIKeyServiceBlockingStub stub;
+    @GrpcClient("tenet-service")
+    private TenetServiceGrpc.TenetServiceBlockingStub stub;
 
-    public APIKeyServiceImpl(APIKeyServiceGrpc.APIKeyServiceBlockingStub stub) {
+    public APIKeyServiceImpl(TenetServiceGrpc.TenetServiceBlockingStub stub) {
         this.stub = stub;
     }
 

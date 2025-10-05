@@ -2,6 +2,7 @@ package com.simpleAnalytics.TenetService.service.impl;
 
 import com.simpleAnalytics.TenetService.cache.CreditService;
 import com.simpleAnalytics.TenetService.entity.Application;
+import com.simpleAnalytics.TenetService.entity.CreditInfo;
 import com.simpleAnalytics.TenetService.entity.Tenet;
 import com.simpleAnalytics.TenetService.exception.ApplicationNotFoundException;
 import com.simpleAnalytics.TenetService.exception.TenetNotFoundException;
@@ -119,10 +120,21 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Scheduled(cron = "0 0 0 1 * *")
     @Override
     @Transactional
-    @Retryable(retryFor =  Exception.class)
+    @Retryable(retryFor = Exception.class)
     public void resetAllApplicationCredits() {
         log.info("Resetting application credits for tenet");
         applicationRepository.resetCredits();
+    }
+
+    @Override
+    public CreditInfo getCreditInfo(UUID applicationId) {
+        try {
+
+            return applicationRepository.findCreditInfoById(applicationId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

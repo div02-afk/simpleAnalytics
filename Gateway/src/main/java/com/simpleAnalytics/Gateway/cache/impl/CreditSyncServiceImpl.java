@@ -5,6 +5,7 @@ import com.simpleAnalytics.Gateway.cache.CreditSyncService;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -15,18 +16,24 @@ import java.util.UUID;
 public class CreditSyncServiceImpl implements CreditSyncService {
     private final RedisTemplate<String, Long> redisTemplate;
     private final CreditService creditService;
-    //TODO make get/set calls parallel
-    public void incrementCredit(UUID appId) throws InsufficientCreditsException {
+
+    @Override
+    public void checkAndIncrementCreditUtilization(UUID appId) throws InsufficientCreditsException {
+        //TODO: make these parallel/ store in a single key
         long creditLimit = creditService.getCreditLimit(appId);
         long creditUtil = creditService.getCreditUtilization(appId);
 
         if (creditLimit > creditUtil) {
-            redisTemplate.opsForValue().increment("app:deltaCreditUtilization:" + appId.toString());
-            redisTemplate.opsForValue().increment("app:creditUtilization:" + appId.toString());
+            incrementCredit(appId);
         } else {
             throw new InsufficientCreditsException(appId);
         }
+    }
 
+    @Async
+    protected void incrementCredit(UUID appId) {
+        redisTemplate.opsForValue().increment("app:deltaCreditUtilization:" + appId.toString());
+        redisTemplate.opsForValue().increment("app:creditUtilization:" + appId.toString());
     }
 
 

@@ -1,6 +1,7 @@
 package com.simpleAnalytics.TenetService.service;
 
 import com.simpleAnalytics.TenetService.entity.APIKey;
+import com.simpleAnalytics.TenetService.entity.CreditInfo;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -10,4 +11,5 @@ public interface APIKeyService {
     public APIKey getAPIKey(UUID id);
     public void deleteAPIKey(UUID id);
     public Optional<UUID> getApplicationIdForAPIKey(UUID apiKey);
+
 }

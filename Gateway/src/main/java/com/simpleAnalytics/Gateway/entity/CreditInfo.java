@@ -1,4 +1,4 @@
-package com.simpleAnalytics.TenetService.entity;
+package com.simpleAnalytics.Gateway.entity;
 
 
 import lombok.Builder;

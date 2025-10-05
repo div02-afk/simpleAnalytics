@@ -6,6 +6,7 @@ import com.simpleAnalytics.Gateway.rpc.APIKeyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class APIKeyValidityCheckImpl implements APIKeyValidityCheck {
         }
     }
 
-
+    @Async
     @Override
     public void cacheAPIKeyApplicationId(UUID apikey, UUID applicationId) {
         redisTemplate.opsForValue().set("apikey:" + apikey.toString(), applicationId.toString());

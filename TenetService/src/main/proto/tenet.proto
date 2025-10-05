@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package com.simpleAnalytics.protobuf;
+
+option java_package = "com.simpleAnalytics.protobuf";
+option java_outer_classname = "TenetProto";
+
+
+message APIKeyValidationRequest {
+  string apikey = 1;
+}
+
+message APIKeyValidationResponse {
+  string applicationId = 1;
+}
+
+message ApplicationCreditInfoRequest {
+  string applicationId = 1;
+}
+message ApplicationCreditInfoResponse {
+  uint64 creditLimit = 1;
+  uint64  creditUtilization = 2;
+}
+
+service TenetService {
+  rpc GetApplicationId(APIKeyValidationRequest) returns (APIKeyValidationResponse);
+  rpc GetApplicationCreditInfo(ApplicationCreditInfoRequest) returns (ApplicationCreditInfoResponse);
+}

@@ -1,6 +1,7 @@
 package com.simpleAnalytics.TenetService.service;
 
 import com.simpleAnalytics.TenetService.entity.Application;
+import com.simpleAnalytics.TenetService.entity.CreditInfo;
 import com.simpleAnalytics.TenetService.exception.InsufficientCreditsException;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface ApplicationService {
     public void incrementCredits(UUID applicationId, Long deltaCreditUtilization) ;
 
     public void resetAllApplicationCredits();
+
+    public CreditInfo getCreditInfo(UUID applicationId);
 }

@@ -48,7 +48,7 @@ public class EventPipelineServiceImpl implements EventPipelineService {
         //send to kafka
         try {
             eventProducer.sendEvent("event", event);
-            creditSyncService.incrementCredit(newUserEvent.getAppId());
+            creditSyncService.checkAndIncrementCreditUtilization(newUserEvent.getAppId());
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
