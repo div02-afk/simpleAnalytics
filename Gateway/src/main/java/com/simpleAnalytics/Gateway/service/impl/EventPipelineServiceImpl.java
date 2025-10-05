@@ -1,4 +1,4 @@
-package com.simpleAnalytics.Gateway.service;
+package com.simpleAnalytics.Gateway.service.impl;
 
 
 import com.simpleAnalytics.Gateway.MQ.CreditEventProducer;
@@ -11,6 +11,8 @@ import com.simpleAnalytics.Gateway.entity.UserEvent;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
 import com.simpleAnalytics.Gateway.exception.InvalidAPIKeyException;
 import com.simpleAnalytics.Gateway.exception.InvalidUserEvent;
+import com.simpleAnalytics.Gateway.service.EventMapper;
+import com.simpleAnalytics.Gateway.service.EventPipelineService;
 import com.simpleAnalytics.protobuf.EventProto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +35,6 @@ public class EventPipelineServiceImpl implements EventPipelineService {
 
     @Retryable(retryFor = RuntimeException.class)
     public void processEvent(UserEvent newUserEvent, UUID apiKey, Context context) throws InvalidUserEvent, InsufficientCreditsException, InvalidAPIKeyException,RuntimeException {
-
-
-        //throws invalidapikey exception
-        apiKeyValidityCheck.checkAPIKeyValidity(apiKey, newUserEvent.getAppId());
-
         //throws invaliduserevent exception
         validateUserEvent(newUserEvent);
 
