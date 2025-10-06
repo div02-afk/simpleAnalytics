@@ -79,10 +79,16 @@
 
         <!--        User Agent Parser-->
         <!-- https://mvnrepository.com/artifact/com.github.ua-parser/uap-java -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.ua-parser</groupId>-->
+<!--            <artifactId>uap-java</artifactId>-->
+<!--            <version>1.6.1</version>-->
+<!--        </dependency>-->
+
         <dependency>
-            <groupId>com.github.ua-parser</groupId>
-            <artifactId>uap-java</artifactId>
-            <version>1.6.1</version>
+            <groupId>nl.basjes.parse.useragent</groupId>
+            <artifactId>yauaa</artifactId>
+            <version>7.31.0</version>
         </dependency>
 
         <!-- Testing -->

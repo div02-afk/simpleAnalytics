@@ -2,34 +2,31 @@ package com.simpleAnalytics.Gateway.cache.impl;
 
 import com.simpleAnalytics.Gateway.cache.CreditService;
 import com.simpleAnalytics.Gateway.cache.CreditSyncService;
+import com.simpleAnalytics.Gateway.entity.CreditInfo;
 import com.simpleAnalytics.Gateway.exception.InsufficientCreditsException;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 
 @RequiredArgsConstructor
 @Service
 public class CreditSyncServiceImpl implements CreditSyncService {
-    private final RedisTemplate<String, Long> redisTemplate;
+
     private final CreditService creditService;
+    private final RedisAsyncCommands<String, Long> redisAsync;
 
     @Override
-    public void checkAndIncrementCreditUtilization(UUID appId) throws InsufficientCreditsException {
-        CompletableFuture<Long> creditLimitFuture = CompletableFuture.supplyAsync(() -> creditService.getCreditLimit(appId));
-        CompletableFuture<Long> creditUtilFuture = CompletableFuture.supplyAsync(() -> creditService.getCreditUtilization(appId));
+    public void checkAndIncrementCreditUtilization(UUID appId) throws InsufficientCreditsException, ExecutionException, InterruptedException {
 
-        long creditLimit = creditLimitFuture.join();
-        long creditUtil = creditUtilFuture.join();
+        CreditInfo creditInfo = creditService.getCreditInfo(appId);
 
-        if (creditLimit > creditUtil) {
-            CompletableFuture.runAsync(() -> {
-                incrementCredit(appId.toString());
-            });
+        if (creditInfo.creditLimit() > creditInfo.creditsUsed()) {
+            incrementCredit(appId.toString());
         } else {
             throw new InsufficientCreditsException(appId);
         }
@@ -37,8 +34,8 @@ public class CreditSyncServiceImpl implements CreditSyncService {
 
 
     private void incrementCredit(String appId) {
-        redisTemplate.opsForValue().increment("app:deltaCreditUtilization:" + appId);
-        redisTemplate.opsForValue().increment("app:creditUtilization:" + appId);
+        redisAsync.incr("app:deltaCreditUtilization:" + appId);
+        redisAsync.incr("app:creditUtilization:" + appId);
     }
 
 

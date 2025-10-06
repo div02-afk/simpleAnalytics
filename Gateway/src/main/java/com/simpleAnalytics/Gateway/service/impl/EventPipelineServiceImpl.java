@@ -1,9 +1,7 @@
 package com.simpleAnalytics.Gateway.service.impl;
 
 
-import com.simpleAnalytics.Gateway.MQ.CreditEventProducer;
 import com.simpleAnalytics.Gateway.MQ.EventProducer;
-import com.simpleAnalytics.Gateway.cache.APIKeyValidityCheck;
 import com.simpleAnalytics.Gateway.cache.CreditSyncService;
 import com.simpleAnalytics.Gateway.entity.Context;
 import com.simpleAnalytics.Gateway.entity.SchemaVersion;
@@ -28,9 +26,7 @@ import java.util.concurrent.ExecutionException;
 public class EventPipelineServiceImpl implements EventPipelineService {
 
     private final EventProducer eventProducer;
-    private final CreditEventProducer creditEventProducer;
     private final SchemaVersion CURRENT_SCHEMA_VERSION = SchemaVersion.V1_0_0;
-    private final APIKeyValidityCheck apiKeyValidityCheck;
     private final CreditSyncService creditSyncService;
 
     @Retryable(retryFor = RuntimeException.class)

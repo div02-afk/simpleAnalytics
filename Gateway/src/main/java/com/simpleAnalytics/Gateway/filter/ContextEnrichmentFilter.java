@@ -4,10 +4,10 @@ import com.simpleAnalytics.Gateway.entity.Context;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import nl.basjes.parse.useragent.UserAgent;
+import nl.basjes.parse.useragent.UserAgentAnalyzer;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import ua_parser.Client;
-import ua_parser.Parser;
 
 import java.io.IOException;
 
@@ -16,7 +16,11 @@ import java.io.IOException;
 @Order(1)
 public class ContextEnrichmentFilter implements Filter {
 
-    private final Parser uaParser = new Parser();
+    private final UserAgentAnalyzer uaParser = UserAgentAnalyzer
+            .newBuilder()
+            .hideMatcherLoadStats()
+            .withCache(10000)
+            .build();;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -30,11 +34,11 @@ public class ContextEnrichmentFilter implements Filter {
 
         // 2. Extract User-Agent
         String ua = httpRequest.getHeader("user-agent");
-        Client client = ua != null ? uaParser.parse(ua) : null;
+        UserAgent client = ua != null ? uaParser.parse(ua) : null;
 
-        String os = client != null ? client.os.family : "unknown";
-        String device = client != null ? client.device.family : "unknown";
-        String browser = client != null ? client.userAgent.family : "unknown";
+        String os = client != null ? client.getValue("OperatingSystemNameVersion") : "unknown";
+        String device = client != null ? client.getValue("DeviceName") : "unknown";
+        String browser = client != null ? client.getValue("AgentNameVersion") : "unknown";
         // 3. Enrich context and add to exchange attributes
         Context ctx = Context.builder()
                 .userAgent(ua)
