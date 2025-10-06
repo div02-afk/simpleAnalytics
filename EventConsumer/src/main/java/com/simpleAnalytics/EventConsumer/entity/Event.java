@@ -4,7 +4,6 @@ package com.simpleAnalytics.EventConsumer.entity;
 import com.simpleAnalytics.protobuf.EventProto;
 import lombok.*;
 import org.springframework.lang.Nullable;
-
 import java.sql.Timestamp;
 import java.util.UUID;
 

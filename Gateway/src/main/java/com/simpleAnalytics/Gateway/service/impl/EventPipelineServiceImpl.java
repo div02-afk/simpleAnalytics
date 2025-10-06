@@ -38,15 +38,15 @@ public class EventPipelineServiceImpl implements EventPipelineService {
         //throws invaliduserevent exception
         validateUserEvent(newUserEvent);
 
-        UUID eventId = UUID.randomUUID();
-        EventProto.Event event = EventMapper.toProtoEvent(eventId, CURRENT_SCHEMA_VERSION, newUserEvent, context);
-        log.info("Processing event {}", event.getId());
+        EventProto.Event event = EventMapper.toProtoEvent(UUID.randomUUID(), CURRENT_SCHEMA_VERSION, newUserEvent, context);
+//        log.info("Processing event {}", event.getId());
 
         //send to kafka
         try {
             eventProducer.sendEvent("event", event);
             creditSyncService.checkAndIncrementCreditUtilization(newUserEvent.getAppId());
         } catch (ExecutionException | InterruptedException e) {
+            log.error("Error while sending event", e);
             throw new RuntimeException(e);
         }
 

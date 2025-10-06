@@ -28,9 +28,8 @@ public class EventConsumerImpl implements EventConsumer {
             Event event = EventMapper.toJava(protoEvent);
         try {
 //            log.info("Saving Event: {}", event.getId());
-
             eventRepository.save(event);
-            log.info("Saved Event: {}", event.getId());
+//            log.info("Saved Event: {}", event.getId());
             //save to db
         } catch (Exception e) {
             log.error("Error processing event", e);

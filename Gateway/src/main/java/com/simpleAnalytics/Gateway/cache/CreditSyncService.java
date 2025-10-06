@@ -6,8 +6,4 @@ import java.util.UUID;
 
 public interface CreditSyncService {
     public void checkAndIncrementCreditUtilization(UUID appId) throws InsufficientCreditsException;
-
-    private void incrementCredit(UUID appId) throws InsufficientCreditsException {
-
-    }
 }

@@ -34,12 +34,16 @@ public class EventController {
 
         try {
             Context context = (Context) request.getAttribute("context");
-            log.info("Context: {}", context);
+//            log.info("Context: {}", context);
             authenticationService.authenticate(apikey, event.getAppId());
             eventPipelineService.processEvent(event, apikey, context);
-        } catch (InsufficientCreditsException | InvalidAPIKeyException e) {
+        } catch (InsufficientCreditsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
+        }
+        catch(InvalidAPIKeyException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+        catch (Exception e) {
             log.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error processing event");
         }

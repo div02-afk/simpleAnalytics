@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 
 @RequiredArgsConstructor
@@ -19,21 +20,25 @@ public class CreditSyncServiceImpl implements CreditSyncService {
 
     @Override
     public void checkAndIncrementCreditUtilization(UUID appId) throws InsufficientCreditsException {
-        //TODO: make these parallel/ store in a single key
-        long creditLimit = creditService.getCreditLimit(appId);
-        long creditUtil = creditService.getCreditUtilization(appId);
+        CompletableFuture<Long> creditLimitFuture = CompletableFuture.supplyAsync(() -> creditService.getCreditLimit(appId));
+        CompletableFuture<Long> creditUtilFuture = CompletableFuture.supplyAsync(() -> creditService.getCreditUtilization(appId));
+
+        long creditLimit = creditLimitFuture.join();
+        long creditUtil = creditUtilFuture.join();
 
         if (creditLimit > creditUtil) {
-            incrementCredit(appId);
+            CompletableFuture.runAsync(() -> {
+                incrementCredit(appId.toString());
+            });
         } else {
             throw new InsufficientCreditsException(appId);
         }
     }
 
-    @Async
-    protected void incrementCredit(UUID appId) {
-        redisTemplate.opsForValue().increment("app:deltaCreditUtilization:" + appId.toString());
-        redisTemplate.opsForValue().increment("app:creditUtilization:" + appId.toString());
+
+    private void incrementCredit(String appId) {
+        redisTemplate.opsForValue().increment("app:deltaCreditUtilization:" + appId);
+        redisTemplate.opsForValue().increment("app:creditUtilization:" + appId);
     }
 
 

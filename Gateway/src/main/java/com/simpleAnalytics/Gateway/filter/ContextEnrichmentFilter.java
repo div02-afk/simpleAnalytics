@@ -6,13 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-//import org.springframework.web.filter.OncePerRequestFilter;
 import ua_parser.Client;
 import ua_parser.Parser;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -26,10 +23,6 @@ public class ContextEnrichmentFilter implements Filter {
             throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        log.info("Incoming request: {} {}", httpRequest.getMethod(), httpRequest.getRequestURL());
-        log.info("Headers: {}", Collections.list(httpRequest.getHeaderNames())
-                .stream()
-                .collect(Collectors.toMap(h -> h, httpRequest::getHeader)));
 
         // 1. Extract IP
         String ip = getClientIp(httpRequest);

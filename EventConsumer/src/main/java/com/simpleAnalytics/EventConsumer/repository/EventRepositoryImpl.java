@@ -5,6 +5,8 @@ import java.util.List;
 import com.simpleAnalytics.EventConsumer.MQ.DLQEventProducer;
 import com.simpleAnalytics.EventConsumer.entity.DLQEvent;
 import com.simpleAnalytics.EventConsumer.entity.EventBuffer;
+import com.simpleAnalytics.EventConsumer.entity.UserEvent;
+import com.simpleAnalytics.protobuf.EventProto;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.retry.annotation.Backoff;
@@ -37,7 +39,7 @@ public class EventRepositoryImpl implements EventRepository {
             """;
 
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 10000)
     protected void scheduledBatchSave() {
         flushEvents();
     }
@@ -66,30 +68,43 @@ public class EventRepositoryImpl implements EventRepository {
     private void saveBatch(List<Event> eventBatch) throws DataAccessException {
         jdbcTemplate.batchUpdate(INSERT_SQL, eventBatch, eventBatch.size(), (ps, event) -> {
             String metadataJson;
+            EventProto.Context ctx = event.getContext();
+            UserEvent ue = event.getUserEvent();
             try {
-                metadataJson = mapper.writeValueAsString(event.getUserEvent().getMetadata());
+                metadataJson = mapper.writeValueAsString(ue.getMetadata());
             } catch (JsonProcessingException e) {
                 log.warn("Error parsing metadata as JsonString: {}", e.getMessage());
                 metadataJson = "";
             }
+
             ps.setObject(1, event.getId());
-            ps.setObject(2, event.getReceivedAt());
-            ps.setObject(3, event.getContext() == null ? null : event.getContext().getIp());
-            ps.setObject(4, event.getContext() == null ? null : event.getContext().getUserAgent());
-            ps.setObject(5, event.getContext() == null ? null : event.getContext().getOs());
-            ps.setObject(6, event.getContext() == null ? null : event.getContext().getBrowser());
-            ps.setObject(7, event.getContext() == null ? null : event.getContext().getDevice());
-            ps.setObject(8, event.getContext() == null ? null : event.getContext().getLocale());
-            ps.setObject(9, event.getContext() == null ? null : event.getContext().getTimezone());
-            ps.setObject(10, event.getSchemaVersion().name());
-            ps.setObject(11, event.getUserEvent().getSessionId());
-            ps.setObject(12, event.getUserEvent().getUserId());
-            ps.setObject(13, event.getUserEvent().getAnonymousId());
-            ps.setObject(14, event.getUserEvent().getAppId());
-            ps.setObject(15, event.getUserEvent().getTimestamp());
-            ps.setObject(16, event.getUserEvent().getEventType());
-            ps.setObject(17, metadataJson);
-            ps.setObject(18, event.getUserEvent().getSource());
+            ps.setTimestamp(2, event.getReceivedAt());
+            if (ctx == null) {
+                ps.setString(3, null);
+                ps.setString(4, null);
+                ps.setString(5, null);
+                ps.setString(6, null);
+                ps.setString(7, null);
+                ps.setString(8, null);
+                ps.setString(9, null);
+            } else {
+                ps.setString(3, ctx.getIp());
+                ps.setString(4, ctx.getUserAgent());
+                ps.setString(5, ctx.getOs());
+                ps.setString(6, ctx.getBrowser());
+                ps.setString(7, ctx.getDevice());
+                ps.setString(8, ctx.getLocale());
+                ps.setString(9, ctx.getTimezone());
+            }
+            ps.setString(10, event.getSchemaVersion().name());
+            ps.setObject(11, ue.getSessionId());
+            ps.setObject(12, ue.getUserId());
+            ps.setObject(13, ue.getAnonymousId());
+            ps.setObject(14, ue.getAppId());
+            ps.setTimestamp(15, ue.getTimestamp());
+            ps.setString(16, ue.getEventType());
+            ps.setString(17, metadataJson);
+            ps.setString(18, ue.getSource());
         });
     }
 

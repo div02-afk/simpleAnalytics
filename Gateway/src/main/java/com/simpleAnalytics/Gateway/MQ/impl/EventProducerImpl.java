@@ -20,6 +20,6 @@ public class EventProducerImpl implements EventProducer {
     @Override
     public void sendEvent(String topic, EventProto.Event event) throws ExecutionException, InterruptedException {
         eventKafkaTemplate.send(topic, event).get();
-        log.info("Event pushed to Kafka topic={} -> {}", topic, event.getId());
+//        log.info("Event pushed to Kafka topic={} -> {}", topic, event.getId());
     }
 }
