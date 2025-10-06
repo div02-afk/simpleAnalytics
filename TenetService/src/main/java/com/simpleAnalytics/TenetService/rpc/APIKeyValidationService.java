@@ -1,9 +1,9 @@
 package com.simpleAnalytics.TenetService.rpc;
 
-import com.simpleAnalytics.protobuf.APIKeyValidationProto;
+import com.simpleAnalytics.protobuf.TenetProto;
 import io.grpc.stub.StreamObserver;
 
 public interface APIKeyValidationService {
-    public void GetApplicationId(APIKeyValidationProto.APIKeyValidationRequest request,
-                               StreamObserver<APIKeyValidationProto.APIKeyValidationResponse> responseObserver);
+    public void GetApplicationId(TenetProto.APIKeyValidationRequest request,
+                               StreamObserver<TenetProto.APIKeyValidationResponse> responseObserver);
 }

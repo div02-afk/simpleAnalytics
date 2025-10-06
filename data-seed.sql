@@ -2,7 +2,7 @@
 -- This script populates the database with sample data for testing
 
 -- Clear existing data (in correct order due to foreign key constraints)
-DELETE FROM api_key;
+DELETE FROM apikey;
 DELETE FROM application;
 DELETE FROM tenet;
 DELETE FROM plan;
@@ -59,7 +59,7 @@ INSERT INTO application (id, name, source, created_at, credits_used, tenet_id) V
 ('770e8400-e29b-41d4-a716-446655440017', 'Data Insights API', 'api', '2025-09-20 10:30:00', 18000, '660e8400-e29b-41d4-a716-446655440007');
 
 -- Insert API Keys
-INSERT INTO api_key (id, name, created_at, application_id) VALUES
+INSERT INTO apikey (id, name, created_at, application_id) VALUES
 -- Acme Web Analytics API Keys
 ('880e8400-e29b-41d4-a716-446655440001', 'Production API Key', '2025-09-02 10:35:00', '770e8400-e29b-41d4-a716-446655440001'),
 ('880e8400-e29b-41d4-a716-446655440002', 'Development API Key', '2025-09-02 10:36:00', '770e8400-e29b-41d4-a716-446655440001'),
@@ -140,4 +140,4 @@ SELECT
     (SELECT COUNT(*) FROM plan) as plans_count,
     (SELECT COUNT(*) FROM tenet) as tenets_count,
     (SELECT COUNT(*) FROM application) as applications_count,
-    (SELECT COUNT(*) FROM api_key) as api_keys_count;
+    (SELECT COUNT(*) FROM apikey) as apikeys_count;
