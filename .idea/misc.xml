@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/EventConsumer/pom.xml" />
         <option value="$PROJECT_DIR$/TenetService/pom.xml" />
         <option value="$PROJECT_DIR$/EventProducer/pom.xml" />
+        <option value="$PROJECT_DIR$/Analytics/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

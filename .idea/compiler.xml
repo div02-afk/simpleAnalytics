@@ -17,15 +17,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
       </profile>
-      <profile name="Annotation profile for TenetService" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-        </processorPath>
-        <module name="TenetService" />
-      </profile>
       <profile name="Annotation profile for EventConsumer" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -36,6 +27,16 @@
         </processorPath>
         <module name="EventConsumer" />
       </profile>
+      <profile name="Annotation profile for Analytics" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="Analytics" />
+        <module name="TenetService" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="EventProducer" target="17" />
@@ -43,6 +44,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Analytics" options="-parameters" />
       <module name="EventConsumer" options="-parameters" />
       <module name="Gateway" options="-parameters" />
       <module name="TenetService" options="-parameters" />

@@ -1,0 +1,131 @@
+spring:
+  application:
+    name: Analytics
+
+  # Spring Boot DataSource Configuration (Auto-configures HikariCP)
+  datasource:
+    url: jdbc:clickhouse://localhost:8123/eventsdb
+    username: analytics
+    password: supersecret
+    driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+    hikari:
+      pool-name: ClickHousePool
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+      leak-detection-threshold: 60000
+
+  # Disable SQL initialization for ClickHouse
+  sql:
+    init:
+      mode: never
+
+  # Disable Spring Data JDBC (we're using plain JdbcTemplate)
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration
+
+  # Redis Configuration (Lettuce)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 2
+          max-wait: 2000ms
+        shutdown-timeout: 100ms
+      timeout: 3000ms
+
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000 # 5 minutes in milliseconds
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "analytics:"
+
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+server:
+  port: 8002
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+  error:
+    include-message: always
+    include-stacktrace: on_param
+
+# Analytics Service Configuration
+analytics:
+  # Query Constraints
+  query:
+    max-time-range-days: 90
+    max-result-size: 10000
+    default-limit: 100
+    default-page-size: 50
+
+  # Cache Configuration
+  cache:
+    enabled: true
+    ttl-seconds: 300 # 5 minutes
+    dashboard-ttl-seconds: 180 # 3 minutes for dashboard
+    realtime-ttl-seconds: 30 # 30 seconds for realtime
+
+  # Rate Limiting
+  rate-limit:
+    enabled: true
+    requests-per-minute: 60
+    requests-per-hour: 1000
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.simpleAnalytics.Analytics: DEBUG
+    com.clickhouse: INFO
+    org.springframework.cache: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: true
